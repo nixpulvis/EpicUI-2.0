@@ -1,0 +1,6 @@
+## Interface: 40300
+## Title: |cffC495DDTukui Custom Config|r
+## Notes: Custom Default Configuration for XXXXX Edited Version.
+## Author: Tukz
+
+config\config.lua

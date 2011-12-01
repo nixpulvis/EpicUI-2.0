@@ -1,0 +1,34 @@
+﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">	
+	<Script file="core\api.lua"/>
+	<Script file="core\constants.lua"/>
+	<Script file="core\functions.lua"/>
+	<Script file="core\install.lua"/>
+	<Script file="core\move.lua"/>
+	
+	<Script file="modules\extras\Custom_Actionbar.lua"/>	
+	<Script file="modules\extras\Epic_Trinkets.lua"/>	
+	<Script file="modules\extras\raidbuffReminder.lua"/>		
+	
+	<Script file="modules\panels\panels.lua"/>
+	<Script file="modules\extras\spechelper.lua"/>
+	<Script file="modules\chat\chat.lua"/>	
+	
+	<Script file="modules\unitframes\Plugins\AuraTracker.lua"/>
+	<Script file="modules\unitframes\Plugins\ClassIcons.lua"/>
+	<Script file="modules\unitframes\layout.lua"/>
+	
+	<Script file="modules\actionbars\actionbars.lua"/>
+	
+	<Script file="modules\buffs\buffs.lua"/>
+	
+	<Script file="modules\datatext\friend.lua"/>
+	<Script file="modules\datatext\guild.lua"/>
+	<Script file="modules\datatext\something.lua"/>
+	<Script file="modules\datatext\something.lua"/>
+	
+	<Script file="modules\nameplates\nameplates.lua"/>
+	
+	<Script file="modules\tooltip\tooltip.lua"/>
+	
+	<Script file="modules\skins\balancepowertracker.lua"/>
+</Ui>
