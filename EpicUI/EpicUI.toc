@@ -1,9 +1,10 @@
 ## Interface: 40300
-## Title: |cffC495DDTukui|r EpicUI
-## Notes: WIP
+## Title: EpicUI for |cffC495DDTukui|r
+## Notes: EpicUI for 4.3
+## Version: 2.1.1
 ## Author: Epicgrim
-## RequiredDeps: Tukui, Tukui_EditedDefaultConfig
-## OptionalDeps: Tukui_ConfigUI, 
+## SavedVariablesPerCharacter: EpicUIDataPerChar
+## RequiredDeps: EpicUI_Config, Tukui
 ## X-oUF: oUFTukui
 
 EpicUI.xml

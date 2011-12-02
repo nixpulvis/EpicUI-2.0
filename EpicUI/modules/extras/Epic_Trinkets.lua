@@ -1,8 +1,11 @@
 local T, C, L = unpack(Tukui)
 
+-- Settings
+local position = C.epicui.trinketbarposn
+
 local bsize = 35
 local trinketbar = CreateFrame("Frame", "TukuiTrinketBar", UIParent, "SecureHandlerStateTemplate")
-trinketbar:CreatePanel("Default", (bsize*2)-1, bsize, "CENTER", UIParent, "CENTER", unpack(C.actionbar.trinketbarposn))
+trinketbar:CreatePanel("Default", (bsize*2)-1, bsize, "CENTER", UIParent, "CENTER", unpack(position))
 local trinketbutton = CreateFrame("Button", "trinketbutton", trinketbar, "SecureActionButtonTemplate")
 local trinketbuttondiv = CreateFrame("Frame", nil, trinketbar)
 trinketbuttondiv:CreatePanel("Default", 1, bsize, "TOP", trinketbar, "TOP", 0, 0)

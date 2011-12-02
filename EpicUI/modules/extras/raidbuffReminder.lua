@@ -1,5 +1,8 @@
 local T, C, L = unpack(Tukui)
 
+-- Settings
+local specialbuff = C.epicui.specialbuff
+
 --Locals
 local flaskbuffs = {
 		94160, --"Flask of Flowing Water"
@@ -242,13 +245,13 @@ local function OnAuraChange(self, event, arg1, unit)
 		end
 	end	
 	
-	local spellname = select(1, GetSpellInfo(C.raidbuff.specialbuff))
+	local spellname = select(1, GetSpellInfo(specialbuff))
 	if UnitAura("player", spellname) then
 		SpecialBuffFrame:SetAlpha(1)
-		SpecialBuffFrame.t:SetTexture(select(3, GetSpellInfo(C.raidbuff.specialbuff)))
+		SpecialBuffFrame.t:SetTexture(select(3, GetSpellInfo(specialbuff)))
 	else
 		SpecialBuffFrame:SetAlpha(0.2)
-		SpecialBuffFrame.t:SetTexture(select(3, GetSpellInfo(C.raidbuff.specialbuff)))
+		SpecialBuffFrame.t:SetTexture(select(3, GetSpellInfo(specialbuff)))
 	end
 end
 

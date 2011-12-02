@@ -1,19 +1,18 @@
 local C = {}
 
--------------------------------------------------------------
--- Start Editing Config! Config are set just below!
--------------------------------------------------------------
+C.epicui = {
+	trinketbarposn = {0, -200},
+	specialbuff = 80398,							-- Optional buff to watch for in the raidbuffReminder, set to nil for nothing.
+}
+
 C.media = {
-	-- font = [[Interface\Addons\EpicUI\media\lucida_grande.ttf]],
-	-- font = [[Interface\Addons\EpicUI\media\Hstuff\HelveticaLTStd-Comp.ttf]],
-	-- font = [[Interface\Addons\EpicUI\media\Hstuff\HelveticaLTStd-Light.ttf]],
-	-- font = [[Interface\Addons\EpicUI\media\Hstuff\HelveticaLTStd-Roman.ttf]],
-	font = [[Interface\Addons\EpicUI\media\Hstuff\HelveticaNeueLTCom-Cn.ttf]],
+	font = [[Interface\Addons\EpicUI\media\HelveticaNeueLTCom-Cn.ttf]],
+	plusicon = [[Interface\Addons\EpicUI\media\plus_icon.tga]],
 }
 
 C.general = {
 	backdropcolor = { .05,.05,.05 },                   -- default backdrop color of panels
-	bordercolor = { .15, .15, .15 },                     -- default border color of panels
+	bordercolor = { .15, .15, .15 },                   -- default border color of panels
 }
 
 C.unitframes = {
@@ -27,33 +26,6 @@ C.unitframes = {
 	-- raid layout (if one of them is enabled)
 	gridonly = true,                               -- enable grid only mode for all healer mode raid layout.
 	showplayerinparty = true,                      -- show my player frame in party
-}
-
-if GetUnitName("player") == "Epicgrim" then
-	C.customactionbar = {
-		CABprimary = {"Rebirth", "Innervate", "Tranquility", 58091, 5512},
-		CABsecondary = {"Rebirth", "Innervate", "Tranquility", 58091, 5512},
-	}
-end
-if GetUnitName("player") == "Epicpower" then
-	C.customactionbar = {
-		CABprimary = {"Mirror Image", "Icy Veins", "Ice Block", "Evocation", "Summon Water Elemental" },
-		CABsecondary = {"Mirror Image", "Presence of Mind", "Arcane Power", "Evocation", 36799},
-	}
-end
-if GetUnitName("player") == "Epicelement" then
-	C.customactionbar = {
-		CABprimary = {"Spirit Link Totem", "Lifeblood", "Spiritwalker's Grace", "Mana Tide Totem", 68926},
-		CABsecondary = {"Heroism", "Lifeblood", "Earth Elemental Totem", "Spiritwalker's Grace"},
-	}
-end
-
-C.actionbar = {
-	trinketbarposn = {0, -200},
-}
-
-C.raidbuff = {
-	specialbuff = 80398,							-- Optional buff to watch for in the raidbuffReminder, set to nill for nothing.
 }
 
 C.loot = {
@@ -99,9 +71,5 @@ C.nameplate = {
 	showhealth = true,				                -- show health text on nameplate
 	enhancethreat = true,			                -- threat features based on if your a tank or not
 }
--------------------------------------------------------------
--- Stop Editing Config!
--------------------------------------------------------------
 
--- make it public
 TukuiEditedDefaultConfig = C
