@@ -51,9 +51,7 @@ DropEpicSpells = function(current)
 end
 
 DragEpicSpells = function(current) 
-	if IsModifierKeyDown() then
-		removebyvalue(EpicUIDataPerChar.cabprimary, current)
-	end
+	removebyvalue(EpicUIDataPerChar.cabprimary, current)
 end
 
 local function MakeButtons()
@@ -100,7 +98,7 @@ local function MakeButtons()
 		custombutton[i].cooldown:SetAllPoints(custombutton[i].texture)				
 		-- hoverover stuffz
 		custombutton[i]:StyleButton()
-		
+
 		custombutton[i]:SetScript("OnReceiveDrag", function() DropEpicSpells(v) end)
 		custombutton[i]:SetScript("OnClick", function() DragEpicSpells(v) end)
 		-- cooldown stuffz
@@ -129,7 +127,7 @@ local function MakeButtons()
 					custombutton[i].texture:SetTexture(select(3, GetSpellInfo(v)))
 					local start, duration, enabled = GetSpellCooldown(v)
 					custombutton[i].startval = start
-					custombutton[i]:SetAttribute("type", "spell");
+					custombutton[i]:SetAttribute("type", "spell")
 					custombutton[i]:SetAttribute("spell", v)
 					if enabled ~= 0 then
 						custombutton[i].texture:SetVertexColor(1,1,1)
@@ -194,6 +192,7 @@ dropframe:Size(bsize, bsize)
 dropframe:SetNormalTexture(C.media.plusicon)
 dropframe:SetTemplate("Default")
 dropframe:SetAlpha(0)
+dropframe:StyleButton()
 dropframe:SetScript("OnReceiveDrag", function() DropEpicSpells() MakeNewButtons() end)
 dropframe:SetScript("OnUpdate", function()
 	if CursorHasSpell() or CursorHasItem() then
@@ -202,11 +201,6 @@ dropframe:SetScript("OnUpdate", function()
 		dropframe:SetAlpha(0)
 	end
 end)
-
-local f = CreateFrame("Frame", nil, UIParent)
-f:RegisterEvent("PLAYER_ENTERING_WORLD")
-f:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
-f:SetScript("OnEvent", MakeNewButtons)
 
 local f = CreateFrame("FRAME")
 f:RegisterEvent("VARIABLES_LOADED")
