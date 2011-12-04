@@ -26,7 +26,7 @@ C.unitframes = {
 	-- raid layout (if one of them is enabled)
 	gridonly = true,                               -- enable grid only mode for all healer mode raid layout.
 	showplayerinparty = true,                      -- show my player frame in party
-	gridhealthvertical = false,
+	gridhealthvertical = true,
 }
 
 C.loot = {
@@ -35,24 +35,24 @@ C.loot = {
 
 C.datatext = {
 	fps_ms = 4,                                     -- show fps and ms on panels
-	system = 5,                                     -- show total memory and others systems infos on panels
+	system = 0,                                     -- show total memory and others systems infos on panels
 	bags = 0,                                       -- show space used in bags on panels
 	gold = 6,                                       -- show your current gold on panels
-	wowtime = 8,                                    -- show time on panels
-	guild = 1,                                      -- show number on guildmate connected on panels
+	wowtime = 5,                                    -- show time on panels
+	guild = 7,                                      -- show number on guildmate connected on panels
 	dur = 2,                                        -- show your equipment durability on panels.
-	friends = 3,                                    -- show number of friends connected.
+	friends = 8,                                    -- show number of friends connected.
 	dps_text = 0,                                   -- show a dps meter on panels
 	hps_text = 0,                                   -- show a heal meter on panels
-	power = 0,                                      -- show your attackpower/spellpower/healpower/rangedattackpower whatever stat is higher gets displayed
+	power = 1,                                      -- show your attackpower/spellpower/healpower/rangedattackpower whatever stat is higher gets displayed
 	haste = 0,                                      -- show your haste rating on panels.
-	crit = 0,                                       -- show your crit rating on panels.
+	crit = 3,                                       -- show your crit rating on panels.
 	avd = 0,                                        -- show your current avoidance against the level of the mob your targeting
 	armor = 0,                                      -- show your armor value against the level mob you are currently targeting
 	currency = 0,                                   -- show your tracked currency on panels
 	hit = 0,                                        -- show hit rating
 	mastery = 0,                                    -- show mastery rating
-	micromenu = 7,                                  -- add a micro menu thought datatext
+	micromenu = 0,                                  -- add a micro menu thought datatext
 	regen = 0,                                      -- show mana regeneration
 	talent = 0,                                     -- show talent
 	calltoarms = 0,                                 -- show dungeon and call to arms

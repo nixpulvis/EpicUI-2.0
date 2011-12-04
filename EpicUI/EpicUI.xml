@@ -11,6 +11,7 @@
 	
 	<Script file="modules\panels\panels.lua"/>
 	<Script file="modules\extras\spechelper.lua"/>
+	<Script file="modules\extras\extra.lua"/>
 	<Script file="modules\chat\chat.lua"/>	
 	
 	<Script file="modules\unitframes\Plugins\AuraTracker.lua"/>
