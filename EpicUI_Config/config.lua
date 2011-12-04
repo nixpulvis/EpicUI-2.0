@@ -26,6 +26,7 @@ C.unitframes = {
 	-- raid layout (if one of them is enabled)
 	gridonly = true,                               -- enable grid only mode for all healer mode raid layout.
 	showplayerinparty = true,                      -- show my player frame in party
+	gridhealthvertical = false,
 }
 
 C.loot = {

@@ -323,8 +323,8 @@ local AllBuffs = {
 	},
 
 	["spellhaste"] = {
-		24858,						-- Moonkin Form
-		15473,						-- Shadow Form
+		24907,						-- Moonkin Form
+		49868,						-- Shadow Form
 		3738,						-- Wrath of Air
 	},
 

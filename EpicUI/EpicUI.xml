@@ -17,6 +17,7 @@
 	<Script file="modules\unitframes\Plugins\AuraTracker.lua"/>
 	<Script file="modules\unitframes\Plugins\ClassIcons.lua"/>
 	<Script file="modules\unitframes\layout.lua"/>
+	<Script file="modules\unitframes\raid.lua"/>
 	
 	<Script file="modules\actionbars\actionbars.lua"/>
 	
