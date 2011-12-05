@@ -1,6 +1,6 @@
-local T, C, L = unpack(select(2, ...)) -- Import: T - functions, constants, variables; C - config; L - locales
+local T, C, L = unpack(Tukui)
 local ADDON_NAME, ns = ...
-local oUF = ns.oUF or oUF
+local oUF = ns.oUF or oUFTukui
 
 ns._Objects = {}
 ns._Headers = {}

@@ -69,7 +69,7 @@ local function EditUnitFrame(frame, header)
 		
 		name:SetParent(panel)
 		name:ClearAllPoints()
-		name:SetPoint("LEFT", 3, 1)
+		name:SetPoint("CENTER", 0, 1)
 		
 		health.value:Point("BOTTOM", health, "BOTTOM", 0, 2)
 		health.value:SetFont(C.media.pixelfont, 12, "MONOCHROMEOUTLINE")

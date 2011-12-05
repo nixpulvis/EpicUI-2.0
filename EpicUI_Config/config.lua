@@ -58,9 +58,26 @@ C.datatext = {
 	calltoarms = 0,                                 -- show dungeon and call to arms
 
 	battleground = true,                            -- enable 3 stats in battleground only that replace stat1,stat2,stat3.
-	time24 = false,                                  -- set time to 24h format.
-	localtime = true,                              -- set time to local time instead of server time.
+	time24 = false,                                 -- set time to 24h format.
+	localtime = true,                               -- set time to local time instead of server time.
 	fontsize = 12,                                  -- font size for panels.
+}
+
+C.databars = {
+	settings = {
+		height = 21,								-- set the height of the bars
+		width = 100,								-- set the width of the bars
+		spacing = 3,								-- amount of spacing between bars
+		padding = 3,								-- amount of space between sections (skip a number to make a new "section", e.g. fps:3, latency:4, memory:5, bags:7)
+	},
+	framerate = 2,
+	latency = 3,
+	memory = 4,
+	bags = 0,
+	exp_rep = 1,
+	durability = 5,
+	currency = 0,
+	talents = 0,
 }
 
 C.chat = {

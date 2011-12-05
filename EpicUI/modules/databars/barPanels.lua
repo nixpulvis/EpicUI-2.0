@@ -1,7 +1,9 @@
-local T, C, L = unpack(select(2, ...)) -- Import: T - functions, constants, variables; C - config; L - locales
+local T, C, L = unpack(Tukui)
 
 local pWidth, pHeight = C.databars.settings.width, C.databars.settings.height
 T["databars"] = {}
+
+local hovercolor = {.6, .6, .6}
 
 T.maxDatabars = 0
 for i,v in pairs(C.databars) do
@@ -28,7 +30,7 @@ for i = 1, T.maxDatabars do
 	T.databars[i].statusbar:SetValue(0)
 	
 	T.databars[i].text = T.databars[i].statusbar:CreateFontString("DataBar"..i.."_Text", "OVERLAY")
-	T.databars[i].text:SetFont(C.media.uffont, C.unitframes.fontsize)
+	T.databars[i].text:SetFont(C.media.pixelfont, C.datatext.fontsize, "MONOCHROMEOUTLINE")
 	T.databars[i].text:SetPoint("TOPRIGHT", T.databars[i].statusbar, "TOPRIGHT", -2, -2)
 	T.databars[i].text:SetPoint("BOTTOMLEFT", T.databars[i].statusbar, "BOTTOMLEFT", 3, 3)
 	
@@ -45,7 +47,7 @@ local function hideDatabars(self)
 	self:SetPoint("TOPRIGHT", TukuiMinimap, "TOPLEFT", -3, 0)
 	self:SetPoint("BOTTOMRIGHT", TukuiMinimap, "BOTTOMLEFT", -3, 0)
 	self:SetAlpha(1)
-	T.databars["toggle"]:HookScript("OnEnter", function(self) self:SetAlpha(1) self:SetBackdropBorderColor(unpack(C.datatext.color)) end)
+	T.databars["toggle"]:HookScript("OnEnter", function(self) self:SetAlpha(1) self:SetBackdropBorderColor(unpack(hovercolor)) end)
 	T.databars["toggle"]:HookScript("OnLeave", function(self) self:SetAlpha(1) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
 end
 
@@ -59,7 +61,7 @@ local function showDatabars(self)
 	self:Point("TOPRIGHT", databarsBG, "TOPLEFT", -3, 0)
 	self:Point("BOTTOMRIGHT", databarsBG, "BOTTOMLEFT", -3, 0)
 	
-	T.databars["toggle"]:HookScript("OnEnter", function(self) self:SetAlpha(1) self:SetBackdropBorderColor(unpack(C.datatext.color)) end)
+	T.databars["toggle"]:HookScript("OnEnter", function(self) self:SetAlpha(1) self:SetBackdropBorderColor(unpack(hovercolor)) end)
 	T.databars["toggle"]:HookScript("OnLeave", function(self) self:SetAlpha(0) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
 end
 
@@ -82,7 +84,7 @@ line2:SetFrameStrata("BACKGROUND")
 T.databars["toggle"] = CreateFrame("Frame", "TukuiDataBarToggle", UIParent)
 T.databars["toggle"]:SetAlpha(0)
 T.databars["toggle"].text = T.databars["toggle"]:CreateFontString(nil, "OVERLAY")
-T.databars["toggle"].text:SetFont(C.media.uffont, C.unitframes.fontsize)
+T.databars["toggle"].text:SetFont(C.media.pixelfont, C.datatext.fontsize, "MONOCHROMEOUTLINE")
 T.databars["toggle"].text:SetJustifyH("LEFT")
 T.databars["toggle"].text:SetPoint("CENTER")
 T.databars["toggle"].text:SetText("close")
@@ -92,7 +94,7 @@ T.databars["toggle"]:CreatePanel("ThickTransparent", 20, 1, "TOPRIGHT", databars
 T.databars["toggle"]:Point("BOTTOMRIGHT", databarsBG, "BOTTOMLEFT", -3, 0)
 T.databars["toggle"]:EnableMouse(true)
 
-T.databars["toggle"]:HookScript("OnEnter", function(self) self:SetAlpha(1) self:SetBackdropBorderColor(unpack(C.datatext.color)) end)
+T.databars["toggle"]:HookScript("OnEnter", function(self) self:SetAlpha(1) self:SetBackdropBorderColor(unpack(hovercolor)) end)
 T.databars["toggle"]:HookScript("OnLeave", function(self) self:SetAlpha(0) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
 T.databars["toggle"]:HookScript("OnMouseDown", function(self) 
 	if T.databars[1]:IsShown() then

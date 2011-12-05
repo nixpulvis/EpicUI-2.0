@@ -39,3 +39,20 @@ T.UpdateAuraTrackerTime = function(self, elapsed)
 		self.text:SetFormattedText("%.1f", self.timeleft)
 	end
 end
+
+T.DataBarPoint = function(p, obj)
+	obj:SetPoint("TOPRIGHT", T.databars[p], "TOPRIGHT", -2, -2)
+	obj:SetPoint("BOTTOMLEFT", T.databars[p], "BOTTOMLEFT", 2, 2)
+end
+
+T.DataBarTooltipAnchor = function(barNum)
+	local xoff = -T.databars[barNum]:GetWidth()
+	local yoff = T.Scale(-5)
+	
+	if C.databars.settings.vertical then
+		xoff = T.Scale(5)
+		yoff = T.databars[barNum]:GetHeight()
+	end
+	
+	return xoff, yoff
+end

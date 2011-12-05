@@ -1,4 +1,4 @@
-local T, C, L = unpack(select(2, ...)) -- Import: T - functions, constants, variables; C - config; L - locales
+local T, C, L = unpack(Tukui)
 
 if not C["databars"].exp_rep or C["databars"].exp_rep == 0 then return end
 local barNum = C["databars"].exp_rep

@@ -100,7 +100,7 @@ local function MakeButtons()
 		custombutton[i]:StyleButton()
 
 		custombutton[i]:SetScript("OnReceiveDrag", function() DropEpicSpells(v) end)
-		custombutton[i]:SetScript("OnClick", function() DragEpicSpells(v) end)
+		-- custombutton[i]:SetScript("OnClick", function() DragEpicSpells(v) end)
 		-- cooldown stuffz
 		local function OnUpdate(self, elapsed)
 			TimeSinceLastUpdate = TimeSinceLastUpdate + elapsed

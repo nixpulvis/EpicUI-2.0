@@ -1,4 +1,4 @@
-local T, C, L = unpack(select(2, ...)) -- Import: T - functions, constants, variables; C - config; L - locales
+local T, C, L = unpack(Tukui)
 
 local pWidth, pHeight = C.databars.settings.width, C.databars.settings.height
 for i = 1, #T.databars do
