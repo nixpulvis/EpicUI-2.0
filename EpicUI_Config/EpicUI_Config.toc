@@ -1,6 +1,6 @@
 ## Interface: 40300
 ## Title: EpicUI Config for |cffC495DDTukui|r
-## Version: 2.1.1
+## Version: 2.1.2
 ## Author: Epicgrim
 
 config.lua
