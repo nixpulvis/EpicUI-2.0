@@ -38,6 +38,7 @@ local function removebyvalue(t, value)
 end
 
 DropEpicSpells = function(current) 
+	if InCombatLockdown() then return end
 	local infoType, info1, info2 = GetCursorInfo()
 	local data = EpicUIDataPerChar.cabprimary
 	
@@ -51,7 +52,9 @@ DropEpicSpells = function(current)
 end
 
 DragEpicSpells = function(current) 
+	if InCombatLockdown() then return end
 	removebyvalue(EpicUIDataPerChar.cabprimary, current)
+	PickupSpell("MOONFIRE")
 end
 
 local function MakeButtons()
@@ -98,20 +101,25 @@ local function MakeButtons()
 		custombutton[i].cooldown:SetAllPoints(custombutton[i].texture)				
 		-- hoverover stuffz
 		custombutton[i]:StyleButton()
-
+		
+		custombutton[i]:RegisterForDrag("LeftButton")
 		custombutton[i]:SetScript("OnReceiveDrag", function() DropEpicSpells(v) end)
-		-- custombutton[i]:SetScript("OnClick", function() DragEpicSpells(v) end)
+		custombutton[i]:SetScript("OnDragStart", function() DragEpicSpells(v) end)
 		-- cooldown stuffz
 		local function OnUpdate(self, elapsed)
 			TimeSinceLastUpdate = TimeSinceLastUpdate + elapsed
 			if(TimeSinceLastUpdate > .10) then
 				local name = GetItemInfo(v)
+				-- Trinkets (Expand for all equiped items)
 				if IsEquippedItem(name) == 1 then
-					custombutton[i].value:Hide()
-					local trinket1id = GetInventoryItemID("player", 13)
-					local trinket2id = GetInventoryItemID("player", 14)
-					local var = 0
-					if trinket1id == v then var = 13 elseif trinket2id == v then var = 14 end
+					-- local trinket1id = GetInventoryItemID("player", 13)
+					-- local trinket2id = GetInventoryItemID("player", 14)
+					-- local var = 0
+					-- if trinket1id == v then var = 13 elseif trinket2id == v then var = 14 end
+					local id
+					for i = 0, 19 do
+						id = GetInventoryItemID("player", i)
+					end
 					custombutton[i].texture:SetTexture(select(10, GetItemInfo(v)))
 					local start, duration, enabled = GetItemCooldown(v)
 					custombutton[i].startval = start
@@ -123,6 +131,7 @@ local function MakeButtons()
 					else
 						custombutton[i].texture:SetVertexColor(.35, .35, .35)
 					end
+				-- spells
 				elseif GetSpellInfo(v) == v then
 					custombutton[i].texture:SetTexture(select(3, GetSpellInfo(v)))
 					local start, duration, enabled = GetSpellCooldown(v)
@@ -135,6 +144,7 @@ local function MakeButtons()
 					else
 						custombutton[i].texture:SetVertexColor(.35, .35, .35)
 					end
+				-- Non Equiped Items
 				elseif IsEquippableItem(name) == nil then
 					if type(v) == "number" then
 						custombutton[i].texture:SetTexture(select(10, GetItemInfo(v)))
@@ -179,6 +189,7 @@ local function Kill(more)
 end
 
 local function MakeNewButtons(removing)
+	if InCombatLockdown() then return end
 	if removing then Kill(true) else Kill(false) end
 	MakeButtons()
 end

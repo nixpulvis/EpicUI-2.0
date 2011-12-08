@@ -19,6 +19,7 @@
 	<Script file="modules\unitframes\raid.lua"/>
 	
 	<Script file="modules\actionbars\actionbars.lua"/>
+	<Script file="modules\actionbars\stance.lua"/>
 	
 	<Script file="modules\buffs\buffs.lua"/>
 	
