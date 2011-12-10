@@ -1,6 +1,13 @@
 local T, C, L = unpack(Tukui)
 
-local pWidth, pHeight = C.databars.settings.width, C.databars.settings.height
+databar_settings = {
+	height = 21,								-- set the height of the bars
+	width = 100,								-- set the width of the bars
+	spacing = 3,								-- amount of spacing between bars
+	padding = 3,								-- amount of space between sections (skip a number to make a new "section", e.g. fps:3, latency:4, memory:5, bags:7)
+}
+
+local pWidth, pHeight = databar_settings.width, databar_settings.height
 T["databars"] = {}
 
 local hovercolor = {.6, .6, .6}
@@ -16,7 +23,7 @@ for i = 1, T.maxDatabars do
 	if i == 1 then
 		T.databars[i]:CreatePanel("ThickTransparent", pWidth, pHeight, "TOPRIGHT", TukuiMinimap, "TOPLEFT", -12, -2)
 	else
-		T.databars[i]:CreatePanel("ThickTransparent", pWidth, pHeight, "TOPRIGHT", T.databars[i-1], "BOTTOMRIGHT", 0, -C.databars.settings.spacing)
+		T.databars[i]:CreatePanel("ThickTransparent", pWidth, pHeight, "TOPRIGHT", T.databars[i-1], "BOTTOMRIGHT", 0, -databar_settings.spacing)
 	end
 	
 	T.databars[i].statusbar = CreateFrame("StatusBar",  "TukuiDataBar"..i.."_StatusBar", T.databars[i], "TextStatusBar")

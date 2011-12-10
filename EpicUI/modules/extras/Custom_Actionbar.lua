@@ -37,6 +37,16 @@ local function removebyvalue(t, value)
 	return t
 end
 
+local function GetSpellID(spell)
+	local name
+	for i = 1, 100000 do
+		name = GetSpellInfo(i)
+		if name == spell then
+			return i
+		end
+	end
+end
+
 DropEpicSpells = function(current) 
 	if InCombatLockdown() then return end
 	local infoType, info1, info2 = GetCursorInfo()
@@ -49,12 +59,13 @@ DropEpicSpells = function(current)
 		EpicUIDataPerChar.cabprimary = replaceadd(data, current, GetSpellInfo(id))
 	end
 	ClearCursor()
+	-- foreach(EpicUIDataPerChar.cabprimary, print)
 end
 
 DragEpicSpells = function(current) 
 	if InCombatLockdown() then return end
 	removebyvalue(EpicUIDataPerChar.cabprimary, current)
-	PickupSpell("MOONFIRE")
+	-- PickupSpell("MOONFIRE")
 end
 
 local function MakeButtons()
@@ -112,19 +123,17 @@ local function MakeButtons()
 				local name = GetItemInfo(v)
 				-- Trinkets (Expand for all equiped items)
 				if IsEquippedItem(name) == 1 then
-					-- local trinket1id = GetInventoryItemID("player", 13)
-					-- local trinket2id = GetInventoryItemID("player", 14)
-					-- local var = 0
-					-- if trinket1id == v then var = 13 elseif trinket2id == v then var = 14 end
-					local id
+					local invSlot
 					for i = 0, 19 do
-						id = GetInventoryItemID("player", i)
+						if GetInventoryItemID("player", i) == v then
+							invSlot = i
+						end
 					end
 					custombutton[i].texture:SetTexture(select(10, GetItemInfo(v)))
 					local start, duration, enabled = GetItemCooldown(v)
 					custombutton[i].startval = start
 					custombutton[i]:SetAttribute("type", "item");
-					custombutton[i]:SetAttribute("item", var)
+					custombutton[i]:SetAttribute("item", invSlot)
 					if enabled ~= 0 then
 						custombutton[i].texture:SetVertexColor(1,1,1)
 						custombutton[i].cooldown:SetCooldown(start, duration)
@@ -168,6 +177,22 @@ local function MakeButtons()
 				TimeSinceLastUpdate = 0
 			end
 		end
+		-- tooltip
+		custombutton[i]:SetScript("OnEnter", function(self) 
+			GameTooltip:SetOwner(TukuiTooltipAnchor,"ANCHOR_TOPRIGHT", 0, 5); 
+			GameTooltip:SetClampedToScreen(true);
+			GameTooltip:ClearLines()
+			local name = GetItemInfo(v)
+			if GetSpellInfo(v) == v then
+				GameTooltip:SetSpellByID(GetSpellID(v))
+			else
+				GameTooltip:SetItemByID(v)
+			end
+			GameTooltip:Show() 
+		end)
+		custombutton[i]:SetScript("OnLeave", function(self) GameTooltip_Hide() end);
+		custombutton[i]:EnableMouse(true)
+		
 		custombutton[i]:SetScript("OnUpdate", OnUpdate)
 	end
 end

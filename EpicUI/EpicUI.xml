@@ -3,7 +3,6 @@
 	<Script file="core\constants.lua"/>
 	<Script file="core\functions.lua"/>
 	<Script file="core\install.lua"/>
-	<Script file="core\move.lua"/>
 	
 	<Script file="modules\extras\Custom_Actionbar.lua"/>	
 	<Script file="modules\extras\Epic_Trinkets.lua"/>	
@@ -44,6 +43,8 @@
 	<Script file="modules\nameplates\nameplates.lua"/>
 	
 	<Script file="modules\tooltip\tooltip.lua"/>
+	
+	<Script file="core\move.lua"/>
 	
 	<Script file="modules\skins\balancepowertracker.lua"/>
 </Ui>

@@ -1,7 +1,6 @@
 local C = {}
 
 C.epicui = {
-	trinketbarposn = {0, -200},
 	specialbuff = 80398,							-- Optional buff to watch for in the raidbuffReminder, set to nil for nothing.
 }
 
@@ -64,12 +63,6 @@ C.datatext = {
 }
 
 C.databars = {
-	settings = {
-		height = 21,								-- set the height of the bars
-		width = 100,								-- set the width of the bars
-		spacing = 3,								-- amount of spacing between bars
-		padding = 3,								-- amount of space between sections (skip a number to make a new "section", e.g. fps:3, latency:4, memory:5, bags:7)
-	},
 	framerate = 2,
 	latency = 3,
 	memory = 4,

@@ -9,7 +9,7 @@ ns._Headers = {}
 if not C["databars"].currency or C["databars"].currency == 0 then return end
 local barNum = C["databars"].currency
 local barTex = C.media.normTex
-local pWidth, pHeight = C.databars.settings.width, C.databars.settings.height
+local pWidth, pHeight = databar_settings.width, databar_settings.height
 
 T.databars[barNum]:Show()
 
@@ -29,7 +29,7 @@ local function numWatched()
 end
 
 -- Resize original databar to fit 3 bars inside
-T.databars[barNum]:SetHeight((numWatched()*pHeight) + ((numWatched()-1)*C.databars.settings.spacing))
+T.databars[barNum]:SetHeight((numWatched()*pHeight) + ((numWatched()-1)*databar_settings.spacing))
 T.databars[barNum]:SetBackdropColor(0,0,0,0)
 T.databars[barNum]:SetBackdropBorderColor(0,0,0,0)
 if T.databars[barNum].iborder then T.databars[barNum].iborder:Hide() end
@@ -42,9 +42,9 @@ for i = 1, 3 do
 	currencybars[i] = CreateFrame("Frame", "TukuiDataPanel"..barNum.."CurrencyBar"..i, T.databars[barNum])
 	currencybars[i]:CreateShadow()
 	if i == 1 then
-		currencybars[i]:CreatePanel("ThickTransparent", pWidth-pHeight-C.databars.settings.spacing, pHeight, "TOPRIGHT", T.databars[barNum], "TOPRIGHT", 0, 0)
+		currencybars[i]:CreatePanel("ThickTransparent", pWidth-pHeight-databar_settings.spacing, pHeight, "TOPRIGHT", T.databars[barNum], "TOPRIGHT", 0, 0)
 	else
-		currencybars[i]:CreatePanel("ThickTransparent", pWidth-pHeight-C.databars.settings.spacing, pHeight, "TOP", currencybars[i-1], "BOTTOM", 0, -C.databars.settings.spacing)
+		currencybars[i]:CreatePanel("ThickTransparent", pWidth-pHeight-databar_settings.spacing, pHeight, "TOP", currencybars[i-1], "BOTTOM", 0, -databar_settings.spacing)
 	end
 	currencybars[i]["bar"] = {}
 	currencybars[i]["bar"] = CreateFrame("StatusBar",  "DataBar"..barNum.."_StatusBar"..i, currencybars[i], "TextStatusBar")
@@ -62,7 +62,7 @@ for i = 1, 3 do
 	currencybars[i]["text"]:SetPoint("BOTTOMLEFT", currencybars[i]["bar"], "BOTTOMLEFT", 3, 3)
 	
 	currencybars[i]["iconBorder"] = CreateFrame("Frame", nil, currencybars[i])
-	currencybars[i]["iconBorder"]:CreatePanel("ThickTransparent", pHeight, pHeight, "RIGHT", currencybars[i], "LEFT", -C.databars.settings.spacing, 0)
+	currencybars[i]["iconBorder"]:CreatePanel("ThickTransparent", pHeight, pHeight, "RIGHT", currencybars[i], "LEFT", -databar_settings.spacing, 0)
 	currencybars[i]["iconBorder"]:CreateShadow()
 	
 	currencybars[i]["icon"] = currencybars[i]:CreateTexture(nil, "OVERLAY")
@@ -105,7 +105,7 @@ local function update()
 			if currencybars[i]:IsShown() then currencybars[i]:Hide() end
 		end
 	end
-	T.databars[barNum]:SetHeight((numWatched()*pHeight) + ((numWatched()-1)*C.databars.settings.spacing))end
+	T.databars[barNum]:SetHeight((numWatched()*pHeight) + ((numWatched()-1)*databar_settings.spacing))end
 
 local function OnEvent(self, event, ...)
 	update()

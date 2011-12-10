@@ -1,17 +1,26 @@
 local T, C, L = unpack(Tukui)
-
--- Settings
-local position = C.epicui.trinketbarposn
-
 local bsize = 35
+
 local trinketbar = CreateFrame("Frame", "TukuiTrinketBar", UIParent, "SecureHandlerStateTemplate")
-trinketbar:CreatePanel("Default", (bsize*2)-1, bsize, "CENTER", UIParent, "CENTER", unpack(position))
+trinketbar:CreatePanel("Default", (bsize*2)-1, bsize, "CENTER", UIParent, "CENTER", 0, 0)
+trinketbar:SetMovable(true)
+trinketbar:SetClampedToScreen(true)
 local trinketbutton = CreateFrame("Button", "trinketbutton", trinketbar, "SecureActionButtonTemplate")
 local trinketbuttondiv = CreateFrame("Frame", nil, trinketbar)
 trinketbuttondiv:CreatePanel("Default", 1, bsize, "TOP", trinketbar, "TOP", 0, 0)
 
-local TimeSinceLastUpdate = 0
+-- move frame
+local mover = CreateFrame("Frame", "TukuiTrinketBarAnchor", UIParent)
+mover:SetAllPoints(TukuiTrinketBar)
+mover:SetTemplate("Default")
+mover:SetFrameStrata("HIGH")
+mover:SetBackdropBorderColor(1,0,0)
+mover:SetAlpha(0)
+mover.text = T.SetFontString(mover, C.media.uffont, 12)
+mover.text:SetPoint("CENTER")
+mover.text:SetText("Move Trinket Bar")
 
+local TimeSinceLastUpdate = 0
 for i = 1, 2 do
 	--button stuffz
 	trinketbutton[i] = CreateFrame("Button", "trinketbutton"..i, trinketbar, "SecureActionButtonTemplate")
@@ -88,4 +97,4 @@ for i = 1, 2 do
 	end
 	trinketbutton[i]:SetScript("OnUpdate", OnUpdate)
 end
-trinketbar:Hide()
+trinketbar:Kill()

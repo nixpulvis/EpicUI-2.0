@@ -49,7 +49,7 @@ T.DataBarTooltipAnchor = function(barNum)
 	local xoff = -T.databars[barNum]:GetWidth()
 	local yoff = T.Scale(-5)
 	
-	if C.databars.settings.vertical then
+	if databar_settings.vertical then
 		xoff = T.Scale(5)
 		yoff = T.databars[barNum]:GetHeight()
 	end
