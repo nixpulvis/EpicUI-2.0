@@ -65,7 +65,7 @@ end
 DragEpicSpells = function(current) 
 	if InCombatLockdown() then return end
 	removebyvalue(EpicUIDataPerChar.cabprimary, current)
-	-- PickupSpell("MOONFIRE")
+	PickupSpell("MOONFIRE")
 end
 
 local function MakeButtons()
@@ -219,8 +219,8 @@ local function MakeNewButtons(removing)
 	MakeButtons()
 end
 
-hooksecurefunc("DropEpicSpells", function() MakeNewButtons() end)
-hooksecurefunc("DragEpicSpells", function() MakeNewButtons(true) end)
+-- hooksecurefunc("DropEpicSpells", function() MakeNewButtons() end)
+-- hooksecurefunc("DragEpicSpells", function() MakeNewButtons(true) end)
 
 -- Area To Add Spells
 local dropframe = CreateFrame("Button", "CustomActionBarDropFrame", UIParent)

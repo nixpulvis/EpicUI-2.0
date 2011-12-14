@@ -208,4 +208,3 @@ protection:SetScript("OnEvent", function(self, event)
 	enable = false
 	moving()
 end)
-foreach(T.AllowFrameMoving, print)

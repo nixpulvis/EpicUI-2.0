@@ -293,7 +293,9 @@ for _, frame in pairs(frames) do
 	
 	-- Target of Target 
 	if (unit == "targettarget") then
-		self.panel:Kill()
+		if not T.lowversion then
+			self.panel:Kill()
+		end
 		--Given Panel(Killed), Health, Name, Debuffs // Rest I need to make
 		local health = self.Health
 		local healthBG = self.Health.bg
