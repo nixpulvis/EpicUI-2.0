@@ -6,7 +6,7 @@ local T, C, L = unpack(Tukui)
 -- Edit Unit Raid Frames here!
 --------------------------------------------------------------
 -- 1 second delay before edited skin apply (can probably be a lower because 1 second is really too long, 0.1 or 0.2 should be the best, setting it to 1 was just for testing, CANNOT BE 0)
-local delay = 1 
+local delay = .1 
 
 local function EditUnitFrame(frame, header)
 	local name = frame.Name

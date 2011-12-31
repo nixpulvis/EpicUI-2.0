@@ -20,8 +20,6 @@
 	<Script file="modules\actionbars\actionbars.lua"/>
 	<Script file="modules\actionbars\stance.lua"/>
 	
-	<Script file="modules\buffs\buffs.lua"/>
-	
 	<Script file="modules\databars\bags.lua"/>
 	<Script file="modules\databars\barPanels.lua"/>
 	<Script file="modules\databars\currency.lua"/>
@@ -32,6 +30,8 @@
 	<Script file="modules\databars\memory.lua"/>
 	<Script file="modules\databars\postCreation.lua"/>
 	<Script file="modules\databars\talents.lua"/>
+	
+	<Script file="modules\buffs\buffs.lua"/>
 	
 	<Script file="modules\datatext\friend.lua"/>
 	<Script file="modules\datatext\guild.lua"/>

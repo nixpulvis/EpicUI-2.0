@@ -103,7 +103,7 @@ T.databars["toggle"]:EnableMouse(true)
 
 T.databars["toggle"]:HookScript("OnEnter", function(self) self:SetAlpha(1) self:SetBackdropBorderColor(unpack(hovercolor)) end)
 T.databars["toggle"]:HookScript("OnLeave", function(self) self:SetAlpha(0) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
-T.databars["toggle"]:HookScript("OnMouseDown", function(self) 
+T.databars["toggle"]:SetScript("OnMouseDown", function(self) 
 	if T.databars[1]:IsShown() then
 		hideDatabars(self)
 		databarsBG:Hide()

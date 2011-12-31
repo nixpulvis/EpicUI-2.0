@@ -25,8 +25,8 @@ for i= 1, 12 do
 end
 
 TukuiBar2:ClearAllPoints()
-TukuiBar2:Point("BOTTOMLEFT", TukuiControl, "TOPLEFT", 1, 0)
-TukuiBar2:Point("BOTTOMRIGHT", TukuiControl, "TOPRIGHT", -1, 0)
+TukuiBar2:Point("BOTTOMLEFT", TukuiBar1, "TOPLEFT", 0, 5)
+TukuiBar2:Point("BOTTOMRIGHT", TukuiBar1, "TOPRIGHT", 0, 5)
 TukuiBar2:Height(C.actionbar.buttonsize + (T.buttonspacing * 2))
 
 for i= 1, 12 do

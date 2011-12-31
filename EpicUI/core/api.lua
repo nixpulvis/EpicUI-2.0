@@ -8,11 +8,11 @@ local function CreateBorder(f, i, o)
 		border:Point("TOPLEFT", T.mult, -T.mult)
 		border:Point("BOTTOMRIGHT", -T.mult, T.mult)
 		border:SetBackdrop({
-			edgeFile = C["media"].blank, 
-			edgeSize = mult, 
+			edgeFile = C.media.blank, 
+			edgeSize = T.mult, 
 			insets = { left = T.mult, right = T.mult, top = T.mult, bottom = T.mult }
 		})
-		border:SetBackdropBorderColor(unpack(C["media"].backdropcolor))
+		border:SetBackdropBorderColor(unpack(C.media.backdropcolor))
 		f.iborder = border
 	end
 
@@ -23,16 +23,16 @@ local function CreateBorder(f, i, o)
 		border:Point("BOTTOMRIGHT", T.mult, -T.mult)
 		border:SetFrameLevel(f:GetFrameLevel() + 1)
 		border:SetBackdrop({
-			edgeFile = C["media"].blank, 
+			edgeFile = C.media.blank, 
 			edgeSize = T.mult, 
 			insets = { left = T.mult, right = T.mult, top = T.mult, bottom = T.mult }
 		})
-		border:SetBackdropBorderColor(unpack(C["media"].backdropcolor))
+		border:SetBackdropBorderColor(unpack(C.media.backdropcolor))
 		f.oborder = border
 	end
 end
 
-local function SetVerticalText(self, r, g, b, shadow) -- Must call this function after every update to self:SetText()
+local function SetVerticalText(self, string, r, g, b, shadow) -- Must call this function after every update to self:SetText()
 	if self.VertTexted then
 		for key in pairs(self.words) do
 			self.words[key].str:Kill()
@@ -41,7 +41,7 @@ local function SetVerticalText(self, r, g, b, shadow) -- Must call this function
 		wipe(self.words)
 	end
 		
-	local string = self:GetText()
+	--local string = self:GetText()
 	local parent = self:GetParent()
 	local fontName, fontHeight, fontFlags = self:GetFont()
 	local point, relativeTo, relativePoint, xOfs, yOfs = self:GetPoint()
@@ -82,9 +82,12 @@ local function SetVerticalText(self, r, g, b, shadow) -- Must call this function
 		end
 	end
 	
-	self:Hide() -- Hide the original string :)
+	--self:Hide() -- Hide the original string :)
 	self.VertTexted = true
 end
+
+------------------------------
+-- Adding Functions to the API
 
 local function addapi(object)
 	local mt = getmetatable(object).__index

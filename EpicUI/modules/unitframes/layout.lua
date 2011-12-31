@@ -118,11 +118,11 @@ for _, frame in pairs(frames) do
 		castbar.time:Point("RIGHT", castbar, "RIGHT", -2, 0)
 		
 		if (unit == "player") then
-			castbar:Point("BOTTOMLEFT", TukuiBar1, "TOPLEFT", 2 , 5)
-			castbar:Point("TOPRIGHT", TukuiControl, "TOPRIGHT", -3, -3)
+			castbar:Point("BOTTOMLEFT", TukuiBar2, "TOPLEFT", 0, 5)
+			castbar:Point("BOTTOMRIGHT", TukuiBar2, "TOPRIGHT", 0, 5)
 			castbar:Height(25)
 			if C["unitframes"].cbicons == true then
-				local bsize = castbar:GetHeight() + 2
+				local bsize = castbar:GetHeight()
 				castbar.button:SetBackdrop(nil)
 				castbar.button.shadow:Kill()
 				castbar.button:CreateBorder(false, true)
@@ -133,7 +133,7 @@ for _, frame in pairs(frames) do
 				castbar.icon:Point("TOPLEFT", castbar.button)
 				castbar.icon:Point("BOTTOMRIGHT", castbar.button)
 				
-				castbar.button:Point("BOTTOMLEFT", TukuiBar1, "TOPLEFT", 2, 3)
+				castbar.button:Point("BOTTOMLEFT", TukuiBar2, "TOPLEFT", 0, 5)
 				castbar:Point("BOTTOMLEFT", castbar.button, "BOTTOMRIGHT", 1, 0)
 			end
 		else	

@@ -1,25 +1,19 @@
 -----------------------------------------------
--- Spec Helper, by EPIC
+-- Spec Info
 -----------------------------------------------
 local T, C, L = unpack(Tukui) -- Import: T - functions, constants, variables; C - config; L - locales
 
--- colors
-local hoverovercolor = {.4, .4, .4}
-local cp = "|cff319f1b" -- +
-local cm = "|cff9a1212" -- -
-local dr, dg, db = unpack({ 0.4, 0.4, 0.4 })
+local dr, dg, db = unpack(C.general.highlighted)
 panelcolor = ("|cff%.2x%.2x%.2x"):format(dr * 255, dg * 255, db * 255)
 
 -- Gear Settings
-local Enablegear = true -- herp
-local Autogearswap = true -- derp
-local set1 = 1 -- this is the gear set that gets equiped with your primary spec. (must be the NUMBER from 1-10)
-local set2 = 2 -- this is the gear set that gets equiped with your secondary spec.(must be the NUMBER from 1-10)
+local Enablegear = true -- make this a setting
+local Autogearswap = false -- make this a setting
 
 --functions
 local function HasDualSpec() if GetNumTalentGroups() > 1 then return true end end
 
-local function GetSecondaryTalentIndex()
+local function GetUnactiveTalentGroup()
 	local secondary
 	if GetActiveTalentGroup() == 1 then
 		secondary = 2
@@ -38,15 +32,15 @@ local function ActiveTalents()
 end	
 
 local function UnactiveTalents()
-	local sTree1 = select(5,GetTalentTabInfo(1,false,false, GetSecondaryTalentIndex()))
-	local sTree2 = select(5,GetTalentTabInfo(2,false,false, GetSecondaryTalentIndex()))
-	local sTree3 = select(5,GetTalentTabInfo(3,false,false, GetSecondaryTalentIndex()))
-	local sTree = GetPrimaryTalentTree(false,false,(GetSecondaryTalentIndex()))
+	local sTree1 = select(5,GetTalentTabInfo(1,false,false, GetUnactiveTalentGroup()))
+	local sTree2 = select(5,GetTalentTabInfo(2,false,false, GetUnactiveTalentGroup()))
+	local sTree3 = select(5,GetTalentTabInfo(3,false,false, GetUnactiveTalentGroup()))
+	local sTree = GetPrimaryTalentTree(false,false,(GetUnactiveTalentGroup()))
 	return sTree1, sTree2, sTree3, sTree
 end
 
 local function HasUnactiveTalents()
-	local sTree = GetPrimaryTalentTree(false,false,(GetSecondaryTalentIndex()))
+	local sTree = GetPrimaryTalentTree(false,false,(GetUnactiveTalentGroup()))
 	if sTree == nil then
 		return false
 	else
@@ -54,9 +48,15 @@ local function HasUnactiveTalents()
 	end
 end
 
-local function AutoGear(set1, set2)
-	local name1 = GetEquipmentSetInfo(set1)
-	local name2 = GetEquipmentSetInfo(set2)
+local function SwitchSpecs()
+	local i = GetActiveTalentGroup()
+	if i == 1 then SetActiveTalentGroup(2) end
+	if i == 2 then SetActiveTalentGroup(1) end
+end
+
+local function AutoGear()
+	local name1 = GetEquipmentSetInfo(1)
+	local name2 = GetEquipmentSetInfo(2)
 	if GetActiveTalentGroup() == 1 then
 		if name1 then UseEquipmentSet(name1) end
 	else
@@ -68,191 +68,197 @@ end
 -- Spec
 -----------
 local spec = CreateFrame("Button", "Tukui_Spechelper", UIParent)
-spec:CreatePanel("Default", 100, 20, "CENTER", TukuiControl, "CENTER", 3, 0)
+spec:CreatePanel("Default", TukuiMinimap:GetWidth(), 20, "TOP", TukuiMinimap, "BOTTOM", 0, -5)
 	
 -- Text
 spec.t = spec:CreateFontString(spec, "OVERLAY")
-spec.t:SetPoint("CENTER")
+spec.t:SetPoint("CENTER", -8, 0)
 spec.t:SetFont(C.media.font, C.datatext.fontsize)
 
-local int = 1
-local function Update(self, t)
-int = int - t
-if int > 0 then return end
-	if not GetPrimaryTalentTree() then spec.t:SetText("No talents") return end
-	local tree1, tree2, tree3, Tree = ActiveTalents()
-	local name = select(2, GetTalentTabInfo(Tree))
-	spec.t:SetText(name.." "..panelcolor..tree1.."/"..tree2.."/"..tree3)
+local function SetSpecInfo(self)
+	local Name, sName, tree1, tree2, tree3, Tree, sTree1, sTree2, sTree3, sTree
 	
-	if HasDualSpec() then
-		if HasUnactiveTalents() then 
+	if GetPrimaryTalentTree() then
+		tree1, tree2, tree3, Tree = ActiveTalents()
+		Name = select(2, GetTalentTabInfo(Tree))
+		if HasDualSpec() and HasUnactiveTalents() then
+			sTree1, sTree2, sTree3, sTree = UnactiveTalents()
+			sName = select(2, GetTalentTabInfo(sTree))
+		end
+	elseif HasDualSpec() and HasUnactiveTalents() then
 			local sTree1, sTree2, sTree3, sTree = UnactiveTalents()
 			sName = select(2, GetTalentTabInfo(sTree))
-			spec:SetScript("OnEnter", function() spec.t:SetText(cm..sName.." "..panelcolor..sTree1.."/"..sTree2.."/"..sTree3) end)
-			spec:SetScript("OnLeave", function() spec.t:SetText(name.." "..panelcolor..tree1.."/"..tree2.."/"..tree3) end)
-		else
-			spec:SetScript("OnEnter", function() spec.t:SetText(cm.."No talents") end)
-			spec:SetScript("OnLeave", function() spec.t:SetText(name.." "..panelcolor..tree1.."/"..tree2.."/"..tree3) end)
-		end
 	end
-	int = 1
-	self:SetScript("OnUpdate", nil)
-end
-
-local function OnEvent(self, event)
-	if event == "PLAYER_ENTERING_WORLD" then
-		self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+	
+	if GetPrimaryTalentTree() then 
+		self.t:SetText(Name.." "..panelcolor..tree1.."/"..tree2.."/"..tree3)
 	else
-		self:SetScript("OnUpdate", Update)
+		self.t:SetText("No talents") 
 	end
-end	
+	-- tooltip
+	self:SetScript("OnEnter", function(self) 
+		GameTooltip:SetOwner(self,"ANCHOR_TOP", 0, 4)
+		GameTooltip:SetClampedToScreen(true)
+		GameTooltip:ClearLines()
+		if HasDualSpec() and HasUnactiveTalents() then
+			GameTooltip:AddDoubleLine("Active Spec:", Name or "No Talents", 0, 1, 0, 1, 1, 1)
+			GameTooltip:AddDoubleLine("Unactive Spec:", sName, 1, 0, 0, 1, 1, 1)
+		elseif HasDualSpec() and not HasUnactiveTalents() then
+			GameTooltip:AddDoubleLine("Active Spec:", Name or "No Talents", 0, 1, 0, 1, 1, 1)
+			GameTooltip:AddDoubleLine("Unactive Spec:", "No Talents", 1, 0, 0, 1, 1, 1)
+		else
+			GameTooltip:AddDoubleLine("Active Spec", Name, 0, 1, 0, 1, 1, 1)
+		end
+		GameTooltip:AddLine("Click to Switch Specs")
+		GameTooltip:AddLine("Shift-click to View Talents")
+		GameTooltip:Show() 
+	end)
+	self:SetScript("OnLeave", function(self) GameTooltip_Hide() end)
+	self:EnableMouse(true)
+end
 
 spec:RegisterEvent("PLAYER_TALENT_UPDATE")
 spec:RegisterEvent("PLAYER_ENTERING_WORLD")
 spec:RegisterEvent("CHARACTER_POINTS_CHANGED")
 spec:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
-spec:SetScript("OnEvent", OnEvent) 
+spec:SetScript("OnEvent", SetSpecInfo) 
+spec:SetScript("OnClick", SwitchSpecs)
 
-spec:SetScript("OnClick", function(self) 
-local i = GetActiveTalentGroup()
-if IsModifierKeyDown() then
-	ToggleTalentFrame()
-else
-	if i == 1 then SetActiveTalentGroup(2) end
-	if i == 2 then SetActiveTalentGroup(1) end
-end
-end)
-	
-------------
---Move UI
-------------
-local mui = CreateFrame("Button", nil, spec, "SecureActionButtonTemplate")
-mui:CreatePanel("Default", 20, 20, "TOPRIGHT", spec, "TOPLEFT", -3, 0)
--- mui:Hide()	
-mui.t = mui:CreateFontString(nil, "OVERLAY")
-mui.t:SetPoint("CENTER")
-mui.t:SetFont(C.media.font, C.datatext.fontsize)
-mui.t:SetText("M")
-
-mui:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverovercolor)) end)
-mui:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
-mui:SetAttribute("type", "macro")
-mui:SetAttribute("macrotext", "/moveui")
-	
-------------
---Key Binds
-------------
-local binds = CreateFrame("Button", nil, mui, "SecureActionButtonTemplate")
-binds:CreatePanel("Default", 20, 20, "RIGHT", mui, "LEFT", -3, 0)
-
-binds.t = binds:CreateFontString(nil, "OVERLAY")
-binds.t:SetPoint("CENTER")
-binds.t:SetFont(C.media.font, C.datatext.fontsize)
-binds.t:SetText("K")
-
-binds:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverovercolor)) end)
-binds:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
-binds:SetAttribute("type", "macro")
-binds:SetAttribute("macrotext", "/bindkey")
-
-	if C.general.colorscheme == true then
-		binds:SetBackdropColor(unpack(C.general.color))
-	end	
-	
 ---------------	
--- Heal layout
+-- Layout
 ---------------
-local heal = CreateFrame("Button", nil, mui, "SecureActionButtonTemplate")
-heal:CreatePanel("Default", 20, 20, "RIGHT", binds, "LEFT", -3, 0)
-		
-heal.t = heal:CreateFontString(nil, "OVERLAY")
-heal.t:SetPoint("CENTER")
-heal.t:SetFont(C.media.font, C.datatext.fontsize)
-heal.t:SetText("|cff4BAF4CH|r")
+local layout = CreateFrame("Button", nil, spec, "SecureActionButtonTemplate")
+layout:Size(16, 16)
+layout:Point("RIGHT", spec, "RIGHT", -2, 0 )
+layout:SetFrameStrata(spec:GetFrameStrata())
+layout:SetFrameLevel(spec:GetFrameLevel() + 1)
+layout:SetTemplate()
 
-heal:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverovercolor)) end)
-heal:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
-heal:SetAttribute("type", "macro")
-heal:SetAttribute("macrotext", "/heal")
+layout.tex = layout:CreateTexture(nil, "ARTWORK")
+layout.tex:Point("TOPLEFT", 2, -2)
+layout.tex:Point("BOTTOMRIGHT", -2, 2)
+layout.tex:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 
---------------
--- DPS layout
---------------
-local dps = CreateFrame("Button", nil, mui, "SecureActionButtonTemplate")
-dps:CreatePanel("Default", 20, 20, "RIGHT", heal, "LEFT", -3, 0)		
-dps.t = dps:CreateFontString(nil, "OVERLAY")
-dps.t:SetPoint("CENTER")
-dps.t:SetFont(C.media.font, C.datatext.fontsize)
-dps.t:SetText("|cFFC11B17D|r")
+local SetIcon = function(self)
+	local tex, switchto
+	if IsAddOnLoaded("Tukui_Raid") then
+		tex = C.media.dpsicon
+		switchto = "heal"
+	elseif IsAddOnLoaded("Tukui_Raid_Healing") then
+		tex = C.media.healicon
+		switchto = "dps"
+	end
 
-dps:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverovercolor)) end)
-dps:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
-dps:SetAttribute("type", "macro")
-dps:SetAttribute("macrotext", "/dps")
+	self.tex:SetTexture(tex)
+	
+	self:SetAttribute("type", "macro")
+	self:SetAttribute("macrotext", "/"..switchto)
+end
 
-------------------
--- Layout Checker
-------------------
-local checker = CreateFrame("Frame")
-checker:RegisterEvent("ADDON_LOADED")
-checker:SetScript("OnEvent", function(self, event, addon)
-	if addon == "Tukui_Raid" then
-		dps:SetBackdropBorderColor(.8,.8,.8)
-		dps:SetScript("OnEnter", T.dummy)
-		dps:SetScript("OnLeave", T.dummy)
-		dps:EnableMouse(false)
-	elseif addon == "Tukui_Raid_Healing" then
-		heal:SetBackdropBorderColor(.8,.8,.8)
-		heal:SetScript("OnEnter", T.dummy)
-		heal:SetScript("OnLeave", T.dummy)
-		heal:EnableMouse(false)
+layout:RegisterEvent("PLAYER_ENTERING_WORLD")
+layout:SetScript("OnEvent", SetIcon)		
+
+-- tooltip
+layout:SetScript("OnEnter", function(self) 
+	GameTooltip:SetOwner(self,"ANCHOR_TOP", 0, 4)
+	GameTooltip:SetClampedToScreen(true)
+	GameTooltip:ClearLines()
+	GameTooltip:AddLine("Switch Raidframe Layout")
+	GameTooltip:Show() 
+end)
+layout:SetScript("OnLeave", function(self) GameTooltip_Hide() end)
+layout:EnableMouse(true)
+	
+---------	
+--Panel
+---------
+local shpanel = CreateFrame("Frame", nil, spec)
+shpanel:CreatePanel("Default", spec:GetWidth(), 70, "TOP", spec, "BOTTOM", 0, -3)
+shpanel:Hide()
+
+------------
+-- Toggle
+------------
+local toggle = CreateFrame("Button", nil, spec)
+toggle:CreatePanel("Default", spec:GetWidth(), 20, "TOP", spec, "BOTTOM", 0, -2)
+toggle:SetAlpha(0)
+
+toggle.t = toggle:CreateFontString(nil, "OVERLAY")
+toggle.t:SetPoint("CENTER")
+toggle.t:SetFont(C.media.font, C.datatext.fontsize)
+toggle.t:SetText("OPEN")
+
+toggle:SetScript("OnEnter", function(self) self:SetAlpha(1) end)
+toggle:SetScript("OnLeave", function(self) self:SetAlpha(0) end)
+toggle:SetScript("OnClick", function() 
+	if shpanel:IsShown() then
+		shpanel:Hide()
+		toggle.t:SetText("OPEN")
+		toggle:Point("TOP", spec, "BOTTOM", 0, -2)
+	else
+		shpanel:Show()
+		toggle.t:SetText("CLOSE")
+		toggle:Point("TOP", shpanel, "BOTTOM", 0, -2)
 	end
 end)
+
+------------
+-- Gear Button
+------------
+local geartoggle = CreateFrame("Button", nil, shpanel)
+geartoggle:CreatePanel("Default", shpanel:GetWidth()-6, 20, "TOPLEFT", shpanel, "TOPLEFT", 3, -3)
+
+geartoggle.t = switch:CreateFontString(nil, "OVERLAY")
+geartoggle.t:SetPoint("CENTER")
+geartoggle.t:SetFont(C.media.font, C.datatext.fontsize)
+geartoggle.t:SetText("Show Gear Sets")
+
+geartoggle:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(C.general.highlighted)) end)
+geartoggle:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.general.bordercolor)) end)
+geartoggle:SetScript("OnClick", SwitchSpecs)
+
 ------------------		
 -- Gear switching
 ------------------
 if Enablegear == true then
-	local gearSets = CreateFrame("Frame", nil, spec)	
-	for i = 1, 5 do
-			gearSets[i] = CreateFrame("Button", nil, spec)
-			gearSets[i]:CreatePanel("Default", 19, 20, "CENTER", spec, "CENTER", 0, 0)
+	local gearSets = CreateFrame("Frame", nil, shpanel)	
+	for i = 1, 6 do
+			gearSets[i] = CreateFrame("Button", nil, shpanel)
+			gearSets[i]:SetTemplate()
+			gearSets[i]:Size(20, 20)
 
 			if i == 1 then
-				gearSets[i]:Point("LEFT", spec, "RIGHT", 3, 0)
+				gearSets[i]:Point("TOPLEFT", mui, "BOTTOMLEFT", 0, -2)
 			else
 				gearSets[i]:SetPoint("LEFT", gearSets[i-1], "RIGHT", 3, 0)
 			end
-			gearSets[i].texture = gearSets[i]:CreateTexture(nil, "BORDER")
-			gearSets[i].texture:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-			gearSets[i].texture:SetPoint("TOPLEFT", gearSets[i] ,"TOPLEFT", 2, -2)
-			gearSets[i].texture:SetPoint("BOTTOMRIGHT", gearSets[i] ,"BOTTOMRIGHT", -2, 2)
-			gearSets[i].texture:SetTexture(select(2, GetEquipmentSetInfo(i)))
 			gearSets[i]:Hide()
-		
-		gearSets[i]:RegisterEvent("PLAYER_ENTERING_WORLD")
-		gearSets[i]:RegisterEvent("EQUIPMENT_SETS_CHANGED")
-		gearSets[i]:SetScript("OnEvent", function(self, event)
-			local points, pt = 0, GetNumEquipmentSets()
-			local frames = { gearSets[1]:IsShown(), gearSets[2]:IsShown(), gearSets[3]:IsShown(), gearSets[4]:IsShown(), 
-						 gearSets[5]:IsShown()} -- lol WTF was I thinking here!
-			if pt > points then
-				for i = points + 1, pt do
-					gearSets[i]:Show()
-				end
+	end	
+	
+	local function SetGearButtons()	
+		local sets = GetNumEquipmentSets()
+		if sets > 6 then
+			sets = 6
+		end
+	
+		if sets < 6 then
+			for i = sets+1, 6 do
+				gearSets[i]:Hide()
 			end
-			if frames[pt+1] == 1 then
-				gearSets[pt+1]:Hide()
-			end
+		end
+	
+		for i = 1, sets do				
+			gearSets[i]:Show()
 			
 			gearSets[i].texture = gearSets[i]:CreateTexture(nil, "BORDER")
 			gearSets[i].texture:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 			gearSets[i].texture:SetPoint("TOPLEFT", gearSets[i] ,"TOPLEFT", 2, -2)
 			gearSets[i].texture:SetPoint("BOTTOMRIGHT", gearSets[i] ,"BOTTOMRIGHT", -2, 2)
-			gearSets[i].texture:SetTexture(select(2, GetEquipmentSetInfo(i)))
-			
+			gearSets[i].texture:SetTexture(select(2, GetEquipmentSetInfo(i))) -- weirdness here
+				
 			gearSets[i]:SetScript("OnClick", function(self) UseEquipmentSet(GetEquipmentSetInfo(i)) end)
-			gearSets[i]:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverovercolor)) end)
-			gearSets[i]:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
+			gearSets[i]:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(C.general.highlighted)) end)
+			gearSets[i]:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.general.bordercolor)) end)
 			
 			if Autogearswap == true then
 				gearSets[1]:SetBackdropBorderColor(0,1,0)
@@ -262,21 +268,56 @@ if Enablegear == true then
 				gearSets[2]:SetScript("OnEnter", nil)
 				gearSets[2]:SetScript("OnLeave", nil)
 			end
-		end)
-	end	
+		end
+	end
+	
+	gearfunc = CreateFrame("Frame", nil, UIParent)		
+	gearfunc:RegisterEvent("PLAYER_ENTERING_WORLD")
+	gearfunc:RegisterEvent("EQUIPMENT_SETS_CHANGED")
+	gearfunc:SetScript("OnEvent", SetGearButtons)
 	
 	if Autogearswap == true then
-		gearsetfunc = CreateFrame("Frame", "gearSetfunc", UIParent)
-		local function OnEvent(self, event)
+		autofunc = CreateFrame("Frame", nil, UIParent)
+		autofunc:RegisterEvent("PLAYER_ENTERING_WORLD")
+		autofunc:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+		autofunc:SetScript("OnEvent", function(self, event)
 			if event == "PLAYER_ENTERING_WORLD" then
 				self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 			else
-				AutoGear(set1, set2) 
+				AutoGear() 
 			end
-		end
-		
-		gearsetfunc:RegisterEvent("PLAYER_ENTERING_WORLD")
-		gearsetfunc:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
-		gearsetfunc:SetScript("OnEvent", OnEvent)
+		end)
 	end
 end
+
+------------
+--Move UI
+------------
+local mui = CreateFrame("Button", nil, switch, "SecureActionButtonTemplate")
+mui:CreatePanel("Default", (spec:GetWidth()/2)-3, 20, "TOPLEFT", switch, "BOTTOMLEFT", 0, -2)
+
+mui.t = mui:CreateFontString(nil, "OVERLAY")
+mui.t:SetPoint("CENTER")
+mui.t:SetFont(C.media.font, C.datatext.fontsize)
+mui.t:SetText("Move UI")
+
+mui:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(C.general.highlighted)) end)
+mui:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.general.bordercolor)) end)
+mui:SetAttribute("type", "macro")
+mui:SetAttribute("macrotext", "/moveui")
+	
+------------
+--Key Binds
+------------
+local binds = CreateFrame("Button", nil, mui, "SecureActionButtonTemplate")
+binds:CreatePanel("Default", (spec:GetWidth()/2)-4, 20, "LEFT", mui, "RIGHT", 2, 0)
+
+binds.t = binds:CreateFontString(nil, "OVERLAY")
+binds.t:SetPoint("CENTER")
+binds.t:SetFont(C.media.font, C.datatext.fontsize)
+binds.t:SetText("Keybinds")
+
+binds:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(C.general.highlighted)) end)
+binds:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.general.bordercolor)) end)
+binds:SetAttribute("type", "macro")
+binds:SetAttribute("macrotext", "/bindkey")

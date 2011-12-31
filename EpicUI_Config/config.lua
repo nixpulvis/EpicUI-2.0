@@ -7,11 +7,14 @@ C.epicui = {
 C.media = {
 	font = [[Interface\Addons\EpicUI\media\HelveticaNeueLTCom-Cn.ttf]],
 	plusicon = [[Interface\Addons\EpicUI\media\plus_icon.tga]],
+	dpsicon = [[Interface\Addons\EpicUI\media\switch_layout_dd.tga]],
+	healicon = [[Interface\Addons\EpicUI\media\switch_layout_heal.tga]],
 }
 
 C.general = {
 	backdropcolor = { .05,.05,.05 },                   -- default backdrop color of panels
 	bordercolor = { .15, .15, .15 },                   -- default border color of panels
+	highlighted = {.4, .4, .4},						   -- used for hoverover
 }
 
 C.unitframes = {
