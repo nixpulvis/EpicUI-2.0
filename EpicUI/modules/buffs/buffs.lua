@@ -3,7 +3,7 @@ local T, C, L = unpack(Tukui)
 local buffs = TukuiAurasPlayerBuffs
 local debuffs = TukuiAurasPlayerDebuffs
 
-local function MoveBuffs(anchor, xoffset)
+local function MoveBuffs(anchor)
 	buffs:ClearAllPoints()
 	debuffs:ClearAllPoints()
 	buffs:Point("TOPRIGHT", anchor, "TOPLEFT", -35, 0)

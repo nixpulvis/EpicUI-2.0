@@ -48,8 +48,7 @@ local function hideDatabars(self)
 	for i = 1, T.maxDatabars do
 		T.databars[i]:Hide()
 	end
-	self.text:SetText("open")
-	self.text:SetVerticalText()
+	self.text:SetVerticalText("open")
 	self:ClearAllPoints()
 	self:SetPoint("TOPRIGHT", TukuiMinimap, "TOPLEFT", -3, 0)
 	self:SetPoint("BOTTOMRIGHT", TukuiMinimap, "BOTTOMLEFT", -3, 0)
@@ -62,8 +61,7 @@ local function showDatabars(self)
 	for i = 1, T.maxDatabars do
 		T.databars[i]:Show()
 	end
-	self.text:SetText("close")
-	self.text:SetVerticalText()
+	self.text:SetVerticalText("close")
 	self:ClearAllPoints()
 	self:Point("TOPRIGHT", databarsBG, "TOPLEFT", -3, 0)
 	self:Point("BOTTOMRIGHT", databarsBG, "BOTTOMLEFT", -3, 0)
@@ -94,8 +92,7 @@ T.databars["toggle"].text = T.databars["toggle"]:CreateFontString(nil, "OVERLAY"
 T.databars["toggle"].text:SetFont(C.media.pixelfont, C.datatext.fontsize, "MONOCHROMEOUTLINE")
 T.databars["toggle"].text:SetJustifyH("LEFT")
 T.databars["toggle"].text:SetPoint("CENTER")
-T.databars["toggle"].text:SetText("close")
-T.databars["toggle"].text:SetVerticalText()
+T.databars["toggle"].text:SetVerticalText("close")
 
 T.databars["toggle"]:CreatePanel("ThickTransparent", 20, 1, "TOPRIGHT", databarsBG, "TOPLEFT", -3, 0)
 T.databars["toggle"]:Point("BOTTOMRIGHT", databarsBG, "BOTTOMLEFT", -3, 0)

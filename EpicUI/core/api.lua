@@ -41,7 +41,6 @@ local function SetVerticalText(self, string, r, g, b, shadow) -- Must call this 
 		wipe(self.words)
 	end
 		
-	--local string = self:GetText()
 	local parent = self:GetParent()
 	local fontName, fontHeight, fontFlags = self:GetFont()
 	local point, relativeTo, relativePoint, xOfs, yOfs = self:GetPoint()
@@ -81,8 +80,7 @@ local function SetVerticalText(self, string, r, g, b, shadow) -- Must call this 
 			end
 		end
 	end
-	
-	--self:Hide() -- Hide the original string :)
+
 	self.VertTexted = true
 end
 

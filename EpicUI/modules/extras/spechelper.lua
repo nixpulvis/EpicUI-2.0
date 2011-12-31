@@ -208,7 +208,7 @@ end)
 local geartoggle = CreateFrame("Button", nil, shpanel)
 geartoggle:CreatePanel("Default", shpanel:GetWidth()-6, 20, "TOPLEFT", shpanel, "TOPLEFT", 3, -3)
 
-geartoggle.t = switch:CreateFontString(nil, "OVERLAY")
+geartoggle.t = geartoggle:CreateFontString(nil, "OVERLAY")
 geartoggle.t:SetPoint("CENTER")
 geartoggle.t:SetFont(C.media.font, C.datatext.fontsize)
 geartoggle.t:SetText("Show Gear Sets")
