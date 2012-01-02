@@ -51,12 +51,12 @@ local function MoveButtonBar(button, bar)
 		if bar:IsShown() then
 			db.hidebar2 = false
 			button:ClearAllPoints()
-			button:Point("LEFT", TukuiControl, 4, 0)
+			button:Point("BOTTOMRIGHT", TukuiBar1, "BOTTOMLEFT", -4, 0)
 			button.text:SetText("|cff4BAF4C-|r")
 		else
 			db.hidebar2 = true
 			button:ClearAllPoints()
-			button:Point("LEFT", TukuiControl, 4, 0)
+			button:Point("BOTTOMRIGHT", TukuiBar1, "BOTTOMLEFT", -4, 0)
 			button.text:SetText("|cff4BAF4C+|r")
 		end
 	end
@@ -65,12 +65,12 @@ local function MoveButtonBar(button, bar)
 		if bar:IsShown() then
 			db.hidebar3 = false
 			button:ClearAllPoints()
-			button:Point("BOTTOMLEFT", TukuiBar2Button, "BOTTOMRIGHT", 3, 0)
+			button:Point("BOTTOM", TukuiBar2Button, "TOP", 0, 3)
 			button.text:SetText("|cff4BAF4C<|r")
 		else
 			db.hidebar3 = true
 			button:ClearAllPoints()
-			button:Point("BOTTOMLEFT", TukuiBar2Button, "BOTTOMRIGHT", 3, 0)
+			button:Point("BOTTOM", TukuiBar2Button, "TOP", 0, 3)
 			button.text:SetText("|cff4BAF4C>|r")
 		end
 	end
@@ -86,7 +86,7 @@ end)
 -- Bar 2 Button Settup
 TukuiBar2Button:ClearAllPoints()
 TukuiBar2Button:Point("LEFT", TukuiControl, 4, 0)
-TukuiBar2Button:Size(20, 20)
+TukuiBar2Button:Size(20, 30)
 TukuiBar2Button:SetAlpha(1)
 TukuiBar2Button:HookScript("OnClick", function(self)
 	MoveButtonBar(self, TukuiBar2)
@@ -97,7 +97,7 @@ TukuiBar2Button:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(
 -- Bar 3 Button Settup
 TukuiBar3Button:ClearAllPoints()
 TukuiBar3Button:Point("BOTTOMLEFT", TukuiBar2Button, "BOTTOMRIGHT", 3, 0)
-TukuiBar3Button:Size(20, 20)
+TukuiBar3Button:Size(20, 30)
 TukuiBar3Button:SetAlpha(1)
 TukuiBar3Button:HookScript("OnClick", function(self)
 	MoveButtonBar(self, TukuiBar3)

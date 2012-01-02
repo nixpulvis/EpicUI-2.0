@@ -1,5 +1,5 @@
 -----------------------------------------------
--- Spec Info
+-- SpecHelper by Epic
 -----------------------------------------------
 local T, C, L = unpack(Tukui) -- Import: T - functions, constants, variables; C - config; L - locales
 
@@ -11,33 +11,31 @@ local Enablegear = true -- make this a setting
 local Autogearswap = false -- make this a setting
 
 --functions
-local function HasDualSpec() if GetNumTalentGroups() > 1 then return true end end
-
 local function GetUnactiveTalentGroup()
-	local secondary
 	if GetActiveTalentGroup() == 1 then
-		secondary = 2
+		return 2
 	else
-		secondary = 1
+		return 1
 	end
-	return secondary
 end
 
-local function ActiveTalents()
-	local tree1 = select(5,GetTalentTabInfo(1))
-	local tree2 = select(5,GetTalentTabInfo(2))
-	local tree3 = select(5,GetTalentTabInfo(3))
-	local Tree = GetPrimaryTalentTree(false,false,GetActiveTalentGroup())
-	return tree1, tree2, tree3, Tree
+local function GetActiveTalents()
+	local t1 = select(5,GetTalentTabInfo(1))
+	local t2 = select(5,GetTalentTabInfo(2))
+	local t3 = select(5,GetTalentTabInfo(3))
+	local tr = GetPrimaryTalentTree(false,false,GetActiveTalentGroup())
+	return t1, t2, t3, tr
 end	
 
-local function UnactiveTalents()
-	local sTree1 = select(5,GetTalentTabInfo(1,false,false, GetUnactiveTalentGroup()))
-	local sTree2 = select(5,GetTalentTabInfo(2,false,false, GetUnactiveTalentGroup()))
-	local sTree3 = select(5,GetTalentTabInfo(3,false,false, GetUnactiveTalentGroup()))
-	local sTree = GetPrimaryTalentTree(false,false,(GetUnactiveTalentGroup()))
-	return sTree1, sTree2, sTree3, sTree
+local function GetUnactiveTalents()
+	local st1 = select(5,GetTalentTabInfo(1,false,false, GetUnactiveTalentGroup()))
+	local st2 = select(5,GetTalentTabInfo(2,false,false, GetUnactiveTalentGroup()))
+	local st3 = select(5,GetTalentTabInfo(3,false,false, GetUnactiveTalentGroup()))
+	local str = GetPrimaryTalentTree(false,false,(GetUnactiveTalentGroup()))
+	return st1, st2, st3, str
 end
+
+local function HasDualSpec() if GetNumTalentGroups() > 1 then return true end end
 
 local function HasUnactiveTalents()
 	local sTree = GetPrimaryTalentTree(false,false,(GetUnactiveTalentGroup()))
@@ -49,6 +47,7 @@ local function HasUnactiveTalents()
 end
 
 local function SwitchSpecs()
+	if IsShiftKeyDown() then PlayerTalentFrame:Show() end
 	local i = GetActiveTalentGroup()
 	if i == 1 then SetActiveTalentGroup(2) end
 	if i == 2 then SetActiveTalentGroup(1) end
@@ -64,6 +63,12 @@ local function AutoGear()
 	end
 end
 
+local clock = time
+function sleep(n)  -- seconds
+  local t0 = clock()
+  while clock() - t0 <= n do end
+end
+
 -----------
 -- Spec
 -----------
@@ -75,39 +80,40 @@ spec.t = spec:CreateFontString(spec, "OVERLAY")
 spec.t:SetPoint("CENTER", -8, 0)
 spec.t:SetFont(C.media.font, C.datatext.fontsize)
 
-local function SetSpecInfo(self)
-	local Name, sName, tree1, tree2, tree3, Tree, sTree1, sTree2, sTree3, sTree
+local int = 1
+local function SetSpecInfo(self, t)
+	int = int - t
+	if int > 0 then return end
 	
+	local tree1, tree2, tree3, treeIndex, name, sTree1, sTree2, sTree3, sTreeIndex, sName
 	if GetPrimaryTalentTree() then
-		tree1, tree2, tree3, Tree = ActiveTalents()
-		Name = select(2, GetTalentTabInfo(Tree))
+		tree1, tree2, tree3, treeIndex = GetActiveTalents()
+		name = select(2, GetTalentTabInfo(treeIndex))
 		if HasDualSpec() and HasUnactiveTalents() then
-			sTree1, sTree2, sTree3, sTree = UnactiveTalents()
-			sName = select(2, GetTalentTabInfo(sTree))
+			sTree1, sTree2, sTree3, sTreeIndex = GetUnactiveTalents()
+			sName = select(2, GetTalentTabInfo(sTreeIndex))
 		end
-	elseif HasDualSpec() and HasUnactiveTalents() then
-			local sTree1, sTree2, sTree3, sTree = UnactiveTalents()
-			sName = select(2, GetTalentTabInfo(sTree))
 	end
 	
 	if GetPrimaryTalentTree() then 
-		self.t:SetText(Name.." "..panelcolor..tree1.."/"..tree2.."/"..tree3)
+		self.t:SetText(name.." "..panelcolor..tree1.."/"..tree2.."/"..tree3)
 	else
 		self.t:SetText("No talents") 
 	end
+	
 	-- tooltip
 	self:SetScript("OnEnter", function(self) 
 		GameTooltip:SetOwner(self,"ANCHOR_TOP", 0, 4)
 		GameTooltip:SetClampedToScreen(true)
 		GameTooltip:ClearLines()
 		if HasDualSpec() and HasUnactiveTalents() then
-			GameTooltip:AddDoubleLine("Active Spec:", Name or "No Talents", 0, 1, 0, 1, 1, 1)
-			GameTooltip:AddDoubleLine("Unactive Spec:", sName, 1, 0, 0, 1, 1, 1)
+			GameTooltip:AddDoubleLine("Active Spec:", name.." "..panelcolor..tree1.."/"..tree2.."/"..tree3 or "No Talents", 0, 1, 0, 1, 1, 1)
+			GameTooltip:AddDoubleLine("Unactive Spec:", sName.." "..panelcolor..sTree1.."/"..sTree2.."/"..sTree3, 1, 0, 0, 1, 1, 1)
 		elseif HasDualSpec() and not HasUnactiveTalents() then
-			GameTooltip:AddDoubleLine("Active Spec:", Name or "No Talents", 0, 1, 0, 1, 1, 1)
+			GameTooltip:AddDoubleLine("Active Spec:", name.." "..panelcolor..tree1.."/"..tree2.."/"..tree3 or "No Talents", 0, 1, 0, 1, 1, 1)
 			GameTooltip:AddDoubleLine("Unactive Spec:", "No Talents", 1, 0, 0, 1, 1, 1)
 		else
-			GameTooltip:AddDoubleLine("Active Spec", Name, 0, 1, 0, 1, 1, 1)
+			GameTooltip:AddDoubleLine("Active Spec", name.." "..panelcolor..tree1.."/"..tree2.."/"..tree3, 0, 1, 0, 1, 1, 1)
 		end
 		GameTooltip:AddLine("Click to Switch Specs")
 		GameTooltip:AddLine("Shift-click to View Talents")
@@ -115,13 +121,23 @@ local function SetSpecInfo(self)
 	end)
 	self:SetScript("OnLeave", function(self) GameTooltip_Hide() end)
 	self:EnableMouse(true)
+	
+	self:SetScript("OnUpdate", nil)
+end
+
+local function OnEvent(self, event)
+	--if event == "PLAYER_ENTERING_WORLD" then
+	--	self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+	--else
+		self:SetScript("OnUpdate", SetSpecInfo)
+	--end
 end
 
 spec:RegisterEvent("PLAYER_TALENT_UPDATE")
 spec:RegisterEvent("PLAYER_ENTERING_WORLD")
 spec:RegisterEvent("CHARACTER_POINTS_CHANGED")
 spec:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
-spec:SetScript("OnEvent", SetSpecInfo) 
+spec:SetScript("OnEvent", OnEvent) 
 spec:SetScript("OnClick", SwitchSpecs)
 
 ---------------	

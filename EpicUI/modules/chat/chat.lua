@@ -44,7 +44,7 @@ bg:SetScript("OnEvent", function(self, event)
 end)
 
 local toggle = CreateFrame("Frame", nil, UIParent)
-toggle:CreatePanel("Default", 20, 20, "RIGHT", TukuiControl, "RIGHT", -3, 0)
+toggle:CreatePanel("Default", 20, 20, "BOTTOMLEFT", TukuiBar1, "BOTTOMRIGHT", 3, 0)
 toggle.t = toggle:CreateFontString(toggle, "OVERLAY")
 toggle.t:SetPoint("CENTER")
 toggle.t:SetFont(C.media.font, C.datatext.fontsize)
