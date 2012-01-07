@@ -47,25 +47,55 @@ local function GetSpellID(spell)
 	end
 end
 
-DropEpicSpells = function(current) 
+DropEpicSpells = function(self, current) 
 	if InCombatLockdown() then return end
-	local infoType, info1, info2 = GetCursorInfo()
-	local data = EpicUIDataPerChar.cabprimary
 	
-	if (infoType == "item") then
-		EpicUIDataPerChar.cabprimary = replaceadd(data, current, info1)
-	elseif (infoType == "spell") then
-		local spellType, id = GetSpellBookItemInfo(info1, info2)
-		EpicUIDataPerChar.cabprimary = replaceadd(data, current, GetSpellInfo(id))
+	if CursorHasSpell() or CursorHasItem() then
+		local infoType, info1, info2 = GetCursorInfo()
+		local data = EpicUIDataPerChar.cabprimary
+		
+		if (infoType == "item") then
+			EpicUIDataPerChar.cabprimary = replaceadd(data, current, info1)
+		elseif (infoType == "spell") then
+			local spellType, id = GetSpellBookItemInfo(info1, info2)
+			EpicUIDataPerChar.cabprimary = replaceadd(data, current, GetSpellInfo(id))
+		end
+		ClearCursor()
 	end
-	ClearCursor()
-	-- foreach(EpicUIDataPerChar.cabprimary, print)
 end
 
 DragEpicSpells = function(current) 
 	if InCombatLockdown() then return end
 	removebyvalue(EpicUIDataPerChar.cabprimary, current)
-	PickupSpell("MOONFIRE")
+	
+	local slot, slotType = SpellBook_GetSpellBookSlot(current)
+	if (not slot or slot > MAX_SPELLS or not _G[self:GetName().."IconTexture"]:IsShown() or (slotType == "FUTURESPELL")) then
+		return
+	end
+	PickupSpellBookItem(slot, SpellBookFrame.bookType)
+end
+
+local function ClickAction(self, v)
+	local name = GetItemInfo(v)
+	-- Trinkets (Expand for all equiped items)
+	if IsEquippedItem(name) == 1 then
+		local invSlot
+		for i = 0, 19 do
+			if GetInventoryItemID("player", i) == v then
+				invSlot = i
+			end
+		end
+		self:SetAttribute("type", "item");
+		self:SetAttribute("item", invSlot)
+	-- spells
+	elseif GetSpellInfo(v) == v then
+		self:SetAttribute("type", "spell")
+		self:SetAttribute("spell", v)
+	-- Non Equiped Items
+	elseif IsEquippableItem(name) == nil and type(v) == "number" then
+			self:SetAttribute("type", "item");
+			self:SetAttribute("item", GetItemInfo(v))
+	end
 end
 
 local function MakeButtons()
@@ -114,12 +144,15 @@ local function MakeButtons()
 		custombutton[i]:StyleButton()
 		
 		custombutton[i]:RegisterForDrag("LeftButton")
-		custombutton[i]:SetScript("OnReceiveDrag", function() DropEpicSpells(v) end)
-		custombutton[i]:SetScript("OnDragStart", function() DragEpicSpells(v) end)
+		custombutton[i]:SetScript("OnDragStart", function(self) DragEpicSpells(v) end)
+		custombutton[i]:SetScript("OnReceiveDrag", function(self) DropEpicSpells(self, v) end)
+		--custombutton[i]:HookScript("OnClick", function(self) DropEpicSpells(self, v) end)
+		
 		-- cooldown stuffz
 		local function OnUpdate(self, elapsed)
 			TimeSinceLastUpdate = TimeSinceLastUpdate + elapsed
 			if(TimeSinceLastUpdate > .10) then
+				ClickAction(self, v)
 				local name = GetItemInfo(v)
 				-- Trinkets (Expand for all equiped items)
 				if IsEquippedItem(name) == 1 then
@@ -132,8 +165,6 @@ local function MakeButtons()
 					custombutton[i].texture:SetTexture(select(10, GetItemInfo(v)))
 					local start, duration, enabled = GetItemCooldown(v)
 					custombutton[i].startval = start
-					custombutton[i]:SetAttribute("type", "item");
-					custombutton[i]:SetAttribute("item", invSlot)
 					if enabled ~= 0 then
 						custombutton[i].texture:SetVertexColor(1,1,1)
 						custombutton[i].cooldown:SetCooldown(start, duration)
@@ -145,8 +176,6 @@ local function MakeButtons()
 					custombutton[i].texture:SetTexture(select(3, GetSpellInfo(v)))
 					local start, duration, enabled = GetSpellCooldown(v)
 					custombutton[i].startval = start
-					custombutton[i]:SetAttribute("type", "spell")
-					custombutton[i]:SetAttribute("spell", v)
 					if enabled ~= 0 then
 						custombutton[i].texture:SetVertexColor(1,1,1)
 						custombutton[i].cooldown:SetCooldown(start, duration)
@@ -159,8 +188,6 @@ local function MakeButtons()
 						custombutton[i].texture:SetTexture(select(10, GetItemInfo(v)))
 						local start, duration, enabled = GetItemCooldown(v)
 						custombutton[i].startval = start
-						custombutton[i]:SetAttribute("type", "item");
-						custombutton[i]:SetAttribute("item", GetItemInfo(v))
 						if enabled ~= 0 then
 							custombutton[i].texture:SetVertexColor(1,1,1)
 							custombutton[i].cooldown:SetCooldown(start, duration)
@@ -219,8 +246,8 @@ local function MakeNewButtons(removing)
 	MakeButtons()
 end
 
--- hooksecurefunc("DropEpicSpells", function() MakeNewButtons() end)
--- hooksecurefunc("DragEpicSpells", function() MakeNewButtons(true) end)
+hooksecurefunc("DropEpicSpells", function() MakeNewButtons() end)
+hooksecurefunc("DragEpicSpells", function() MakeNewButtons(true) end)
 
 -- Area To Add Spells
 local dropframe = CreateFrame("Button", "CustomActionBarDropFrame", UIParent)
@@ -230,6 +257,7 @@ dropframe:SetTemplate("Default")
 dropframe:SetAlpha(0)
 dropframe:StyleButton()
 dropframe:SetScript("OnReceiveDrag", function() DropEpicSpells() MakeNewButtons() end)
+dropframe:SetScript("OnMouseUp", function() DropEpicSpells() MakeNewButtons() end)
 dropframe:SetScript("OnUpdate", function()
 	if CursorHasSpell() or CursorHasItem() then
 		dropframe:SetAlpha(1)
