@@ -336,6 +336,7 @@ local AllBuffs = {
 	["sp6"] = {
 		8227,						-- Flametongue
 		1459,						-- AI
+		61316,						-- Dal Brill
 	},
 
 	["dmg3"] = {
@@ -363,6 +364,7 @@ local AllBuffs = {
 
 	["mana"] = {
 		1459,						-- AI
+		61316,						-- Dal Brill
 		54424,						-- Fel
 	},
 
