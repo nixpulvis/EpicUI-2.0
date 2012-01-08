@@ -64,15 +64,29 @@ DropEpicSpells = function(self, current)
 	end
 end
 
+DropnGrabEpicSpells = function(self, current)
+	if InCombatLockdown() then return end
+	
+	if CursorHasSpell() or CursorHasItem() then
+		local infoType, info1, info2 = GetCursorInfo()
+		local data = EpicUIDataPerChar.cabprimary
+		
+		if (infoType == "item") then
+			EpicUIDataPerChar.cabprimary = replaceadd(data, current, info1)
+		elseif (infoType == "spell") then
+			local spellType, id = GetSpellBookItemInfo(info1, info2)
+			EpicUIDataPerChar.cabprimary = replaceadd(data, current, GetSpellInfo(id))
+		end
+		ClearCursor()
+		PickupSpell(GetSpellID(current))
+	end
+end
+
 DragEpicSpells = function(current) 
 	if InCombatLockdown() then return end
 	removebyvalue(EpicUIDataPerChar.cabprimary, current)
 	
-	local slot, slotType = SpellBook_GetSpellBookSlot(current)
-	if (not slot or slot > MAX_SPELLS or not _G[self:GetName().."IconTexture"]:IsShown() or (slotType == "FUTURESPELL")) then
-		return
-	end
-	PickupSpellBookItem(slot, SpellBookFrame.bookType)
+	PickupSpell(GetSpellID(current))
 end
 
 local function ClickAction(self, v)
@@ -99,8 +113,11 @@ local function ClickAction(self, v)
 end
 
 local function MakeButtons()
+	-- going to set up two layers, first layer is the action button, second layer is another button that is the drag and drop
+	-- layer. Both look the same. (alpha (0) maybe)
+	
 	local custombutton = {}
-	local custombuttondiv = {}
+	--local custombuttonover = {}
 	local dropframe = CustomActionBarDropFrame
 	custombutton = CreateFrame("Button", "CustomButton", custombar, "SecureActionButtonTemplate")
 	if #EpicUIDataPerChar.cabprimary == 0 then
@@ -129,8 +146,8 @@ local function MakeButtons()
 		if i ~= 1 then
 			custombutton[i]:SetPoint("TOPLEFT", custombutton[i-1], "TOPRIGHT", -1, 0)
 			-- dividers
-			custombuttondiv[i] = CreateFrame("Frame", "PrimaryCustomLine"..i, custombar)
-			custombuttondiv[i]:CreatePanel("Default", 1, bsize, "TOPRIGHT", custombutton[i], "TOPLEFT", 1, 0)
+			custombutton[i].div = CreateFrame("Frame", "PrimaryCustomLine"..i, custombar)
+			custombutton[i].div:CreatePanel("Default", 1, bsize, "TOPRIGHT", custombutton[i], "TOPLEFT", 1, 0)
 		end
 		-- texture settup
 		custombutton[i].texture = custombutton[i]:CreateTexture(nil, "BORDER")
@@ -145,8 +162,18 @@ local function MakeButtons()
 		
 		custombutton[i]:RegisterForDrag("LeftButton")
 		custombutton[i]:SetScript("OnDragStart", function(self) DragEpicSpells(v) end)
-		custombutton[i]:SetScript("OnReceiveDrag", function(self) DropEpicSpells(self, v) end)
-		--custombutton[i]:HookScript("OnClick", function(self) DropEpicSpells(self, v) end)
+		
+		custombutton[i].mouse = CreateFrame("Button", nil, custombutton[i])
+		custombutton[i].mouse:SetAllPoints()
+		custombutton[i].mouse:SetScript("OnReceiveDrag", function(self) DropnGrabEpicSpells(self, v) end)
+		custombutton[i].mouse:SetScript("OnClick", function(self) DropnGrabEpicSpells(self, v) end)
+		custombutton[i].mouse:SetScript("OnUpdate", function(self)
+			if CursorHasSpell() or CursorHasItem() then
+				self:EnableMouse(true)
+			else
+				self:EnableMouse(false)
+			end
+		end)
 		
 		-- cooldown stuffz
 		local function OnUpdate(self, elapsed)
@@ -247,6 +274,7 @@ local function MakeNewButtons(removing)
 end
 
 hooksecurefunc("DropEpicSpells", function() MakeNewButtons() end)
+hooksecurefunc("DropnGrabEpicSpells", function() MakeNewButtons() end)
 hooksecurefunc("DragEpicSpells", function() MakeNewButtons(true) end)
 
 -- Area To Add Spells
