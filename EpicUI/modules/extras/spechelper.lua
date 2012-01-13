@@ -62,6 +62,21 @@ local function AutoGear()
 	end
 end
 
+-- used to toggle the gear, glyph and reforge panels
+local function TogglePanel(p)
+	if p == _G["SHGlyphPanel"] then
+		SHGearPanel:Hide()
+	elseif p == _G["SHGearPanel"] then
+		SHGlyphPanel:Hide()
+	end
+	
+	if p:IsShown() then
+		p:Hide()
+	else
+		p:Show()
+	end
+end
+
 -----------
 -- Spec
 -----------
@@ -124,11 +139,7 @@ local function SetSpecInfo(self, t)
 end
 
 local function OnEvent(self, event)
-	--if event == "PLAYER_ENTERING_WORLD" then
-	--	self:UnregisterEvent("PLAYER_ENTERING_WORLD")
-	--else
-		self:SetScript("OnUpdate", SetSpecInfo)
-	--end
+	self:SetScript("OnUpdate", SetSpecInfo)
 end
 
 spec:RegisterEvent("PLAYER_TALENT_UPDATE")
@@ -190,7 +201,7 @@ layout:EnableMouse(true)
 ---------	
 --Panel
 ---------
-local shpanel = CreateFrame("Frame", nil, spec)
+local shpanel = CreateFrame("Frame", "SHPanel", spec)
 shpanel:CreatePanel("Default", spec:GetWidth(), 72, "TOP", spec, "BOTTOM", 0, -3)
 shpanel:Hide()
 
@@ -206,9 +217,10 @@ toggle.t:SetPoint("CENTER")
 toggle.t:SetFont(C.media.font, C.datatext.fontsize)
 toggle.t:SetText("OPEN")
 
-toggle:SetScript("OnEnter", function(self) self:SetAlpha(1) end)
-toggle:SetScript("OnLeave", function(self) self:SetAlpha(0) end)
+toggle:SetScript("OnEnter", function(self) if InCombatLockdown() then return end self:SetAlpha(1) end)
+toggle:SetScript("OnLeave", function(self) if InCombatLockdown() then return end self:SetAlpha(0) end)
 toggle:SetScript("OnClick", function() 
+	if InCombatLockdown() then return end
 	if shpanel:IsShown() then
 		shpanel:Hide()
 		toggle.t:SetText("OPEN")
@@ -223,10 +235,10 @@ end)
 ------------------		
 -- Gear switching
 ------------------
-local btnsize = 30
+local btnsize = 20
 
-local gearpanel = CreateFrame("Frame", nil, shpanel)
-gearpanel:CreatePanel("Default", btnsize+6, 1, "TOPRIGHT", shpanel, "TOPLEFT", -3, 0)
+local gearpanel = CreateFrame("Frame", "SHGearPanel", shpanel)
+gearpanel:CreatePanel("Default", 75, 1, "TOPRIGHT", shpanel, "TOPLEFT", -3, 0)
 gearpanel:SetFrameStrata("High")
 gearpanel:Hide()
 
@@ -237,14 +249,14 @@ for i = 1, 6 do
 	gearSets[i]:Size(btnsize, btnsize)
 
 	if i == 1 then
-		gearSets[i]:Point("TOP", gearpanel, "TOP", 0, -3)
+		gearSets[i]:Point("TOPLEFT", gearpanel, "TOPLEFT", 3, -3)
 	else
 		gearSets[i]:SetPoint("TOP", gearSets[i-1], "BOTTOM", 0, -3)
 	end
 	gearSets[i]:Hide()
 end	
 
-local function SetGearButtons()	
+local function SetGearButtons(self, event)		
 	local sets = GetNumEquipmentSets()
 	if sets > 6 then
 		sets = 6
@@ -258,17 +270,28 @@ local function SetGearButtons()
 
 	for i = 1, sets do				
 		gearSets[i]:Show()
+		local name, icon, setID, isEquipped, totalItems, equippedItems, inventoryItems, missingItems, ignoredSlots = GetEquipmentSetInfo(i)
 		
-		gearSets[i].texture = gearSets[i]:CreateTexture(nil, "BORDER")
-		gearSets[i].texture:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-		gearSets[i].texture:SetPoint("TOPLEFT", gearSets[i] ,"TOPLEFT", 2, -2)
-		gearSets[i].texture:SetPoint("BOTTOMRIGHT", gearSets[i] ,"BOTTOMRIGHT", -2, 2)
-		gearSets[i].texture:SetTexture(select(2, GetEquipmentSetInfo(i))) -- weirdness here
-			
-		gearSets[i]:SetScript("OnClick", function(self) UseEquipmentSet(GetEquipmentSetInfo(i)) end)
-		gearSets[i]:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(C.general.highlighted)) end)
-		gearSets[i]:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.general.bordercolor)) end)
+		-- button creation
+		if event == "PLAYER_ENTERING_WORLD" then
+			gearSets[i].texture = gearSets[i]:CreateTexture(nil, "BORDER")
+			gearSets[i].texture:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+			gearSets[i].texture:SetPoint("TOPLEFT", gearSets[i] ,"TOPLEFT", 2, -2)
+			gearSets[i].texture:SetPoint("BOTTOMRIGHT", gearSets[i] ,"BOTTOMRIGHT", -2, 2)
 		
+			gearSets[i].name = gearSets[i]:CreateFontString(nil, "OVERLAY")
+			gearSets[i].name:SetPoint("LEFT", gearSets[i], "RIGHT", 3, 0)
+			gearSets[i].name:SetFont(C.media.font, C.datatext.fontsize)
+		
+			gearSets[i]:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(C.general.highlighted)) end)
+			gearSets[i]:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.general.bordercolor)) end)
+		end
+		
+		-- Button updating
+		gearSets[i].texture:SetTexture(icon) -- weirdness here
+		gearSets[i].name:SetText(name)
+		gearSets[i]:SetScript("OnClick", function(self) UseEquipmentSet(name) end)
+
 		if Autogearswap == true then
 			gearSets[1]:SetBackdropBorderColor(0,1,0)
 			gearSets[2]:SetBackdropBorderColor(1,0,0)
@@ -313,13 +336,7 @@ geartoggle.t:SetText("Gear Sets ("..GetNumEquipmentSets()..")")
 
 geartoggle:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(C.general.highlighted)) end)
 geartoggle:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.general.bordercolor)) end)
-geartoggle:SetScript("OnClick", function(self) 
-	if gearpanel:IsShown() then
-		gearpanel:Hide() 
-	else
-		gearpanel:Show()
-	end
-end)
+geartoggle:SetScript("OnClick", function(self) TogglePanel(gearpanel) end)
 
 ------------
 --Move UI
@@ -356,7 +373,7 @@ binds:SetAttribute("macrotext", "/bindkey")
 ------------
 -- Glyphs
 ------------
-local glyphpanel = CreateFrame("Frame", nil, shpanel)
+local glyphpanel = CreateFrame("Frame", "SHGlyphPanel", shpanel)
 glyphpanel:CreatePanel("Default", 300, 200, "TOPRIGHT", shpanel, "TOPLEFT", -3, 0)
 glyphpanel:SetFrameStrata("HIGH")
 glyphpanel:Hide()
@@ -404,13 +421,7 @@ glyphs.t:SetText("Glyphs")
 
 glyphs:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(C.general.highlighted)) end)
 glyphs:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.general.bordercolor)) end)
-glyphs:SetScript("OnClick", function(self) 
-	if glyphpanel:IsShown() then
-		glyphpanel:Hide()
-	else
-		glyphpanel:Show()
-	end
-end)
+glyphs:SetScript("OnClick", function(self) TogglePanel(glyphpanel) end)
 
 
 
