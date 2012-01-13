@@ -19,8 +19,3 @@ TukuiLineToABLeft:Kill()
 TukuiLineToABLeftAlt:Kill()
 TukuiLineToABRight:Kill()
 TukuiLineToABRightAlt:Kill()
-
--- quest tracker button
-WatchFrameCollapseExpandButton:SetTemplate()
-TukuiWatchFrame:ClearAllPoints()
-TukuiWatchFrame:Point("TOPRIGHT", TukuiMinimap, "BOTTOMLEFT")

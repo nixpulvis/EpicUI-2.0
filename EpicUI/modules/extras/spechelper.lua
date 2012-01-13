@@ -46,7 +46,7 @@ local function HasUnactiveTalents()
 end
 
 local function SwitchSpecs()
-	if IsShiftKeyDown() then PlayerTalentFrame:Show() end
+	if IsShiftKeyDown() then ToggleTalentFrame() end
 	local i = GetActiveTalentGroup()
 	if i == 1 then SetActiveTalentGroup(2) end
 	if i == 2 then SetActiveTalentGroup(1) end
@@ -62,17 +62,11 @@ local function AutoGear()
 	end
 end
 
-local clock = time
-function sleep(n)  -- seconds
-  local t0 = clock()
-  while clock() - t0 <= n do end
-end
-
 -----------
 -- Spec
 -----------
 local spec = CreateFrame("Button", "Tukui_Spechelper", UIParent)
-spec:CreatePanel("Default", TukuiMinimap:GetWidth(), 20, "TOP", TukuiMinimap, "BOTTOM", 0, -5)
+spec:CreatePanel("Default", TukuiMinimap:GetWidth(), 20, "TOP", TukuiMinimap, "BOTTOM", 0, -3)
 	
 -- Text
 spec.t = spec:CreateFontString(spec, "OVERLAY")
@@ -161,10 +155,10 @@ layout.tex:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 
 local SetIcon = function(self)
 	local tex, switchto
-	if IsAddOnLoaded("Tukui_Raid") then
+	if IsAddOnLoaded("EpicUI_Raid") then
 		tex = C.media.dpsicon
 		switchto = "heal"
-	elseif IsAddOnLoaded("Tukui_Raid_Healing") then
+	elseif IsAddOnLoaded("EpicUI_Raid_Healing") then
 		tex = C.media.healicon
 		switchto = "dps"
 	end
@@ -229,15 +223,18 @@ end)
 ------------------		
 -- Gear switching
 ------------------
+local btnsize = 30
+
 local gearpanel = CreateFrame("Frame", nil, shpanel)
-gearpanel:CreatePanel("Default", 26, 26, "TOPRIGHT", shpanel, "TOPLEFT", -3, 0)
+gearpanel:CreatePanel("Default", btnsize+6, 1, "TOPRIGHT", shpanel, "TOPLEFT", -3, 0)
+gearpanel:SetFrameStrata("High")
 gearpanel:Hide()
 
 local gearSets = CreateFrame("Frame", nil, gearpanel)	
 for i = 1, 6 do
 	gearSets[i] = CreateFrame("Button", nil, gearpanel)
 	gearSets[i]:SetTemplate()
-	gearSets[i]:Size(20, 20)
+	gearSets[i]:Size(btnsize, btnsize)
 
 	if i == 1 then
 		gearSets[i]:Point("TOP", gearpanel, "TOP", 0, -3)
@@ -282,7 +279,7 @@ local function SetGearButtons()
 		end
 	end
 	
-	gearpanel:Height((GetNumEquipmentSets()*20)+(GetNumEquipmentSets()*4))
+	gearpanel:Height((GetNumEquipmentSets()*btnsize)+(GetNumEquipmentSets()*4))
 end
 
 gearfunc = CreateFrame("Frame", nil, UIParent)		

@@ -313,6 +313,7 @@ local AllBuffs = {
 		51470,						-- Ele Oath
 		51701,						-- Honor Amoung Thieves
 		29801,						-- Rampage
+		24604,						-- Hunter Pet
 	},
 
 	["ap10"] = {

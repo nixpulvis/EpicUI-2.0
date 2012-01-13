@@ -6,10 +6,49 @@ local T, C, L = unpack(Tukui)
 --Killing functions I don't want
 T.PostNamePosition = T.dummy
 
--- Stupid shadow
--- hooksecurefunc(T, "PostCreateAura", function(element, button)
-	-- button.Glow:Kill()
--- end)
+ T.SkinCloseButton = function(f, point)
+	if point then
+		f:Point("TOPRIGHT", point, "TOPRIGHT", 2, 2)
+	end
+	
+	f:SetNormalTexture("")
+	f:SetPushedTexture("")
+	f:SetHighlightTexture("")
+	f.t = f:CreateFontString(nil, "OVERLAY")
+	f.t:SetFont(C.media.pixelfont, 12, "MONOCHROME")
+	f.t:SetPoint("CENTER", 0, 0)
+	f.t:SetText("X")
+end
+
+-- Databar fuctions
+T.DataBarPoint = function(p, obj)
+	obj:SetPoint("TOPRIGHT", T.databars[p], "TOPRIGHT", -2, -2)
+	obj:SetPoint("BOTTOMLEFT", T.databars[p], "BOTTOMLEFT", 2, 2)
+end
+
+T.DataBarTooltipAnchor = function(barNum)
+	local xoff = -T.databars[barNum]:GetWidth()
+	local yoff = T.Scale(-5)
+	
+	if databar_settings.vertical then
+		xoff = T.Scale(5)
+		yoff = T.databars[barNum]:GetHeight()
+	end
+	
+	return xoff, yoff
+end
+
+-- for UFs mostly
+function T.CommaValue(amount)
+	local formatted = amount
+	while true do  
+		formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
+		if (k==0) then
+			break
+		end
+	end
+	return formatted
+end
 
 -- master looter icon
 T.MLAnchorUpdate = T.dummy
@@ -38,32 +77,4 @@ T.UpdateAuraTrackerTime = function(self, elapsed)
 		end	
 		self.text:SetFormattedText("%.1f", self.timeleft)
 	end
-end
-
-T.DataBarPoint = function(p, obj)
-	obj:SetPoint("TOPRIGHT", T.databars[p], "TOPRIGHT", -2, -2)
-	obj:SetPoint("BOTTOMLEFT", T.databars[p], "BOTTOMLEFT", 2, 2)
-end
-
-T.DataBarTooltipAnchor = function(barNum)
-	local xoff = -T.databars[barNum]:GetWidth()
-	local yoff = T.Scale(-5)
-	
-	if databar_settings.vertical then
-		xoff = T.Scale(5)
-		yoff = T.databars[barNum]:GetHeight()
-	end
-	
-	return xoff, yoff
-end
-
-function T.CommaValue(amount)
-	local formatted = amount
-	while true do  
-		formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
-		if (k==0) then
-			break
-		end
-	end
-	return formatted
 end

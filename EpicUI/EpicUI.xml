@@ -7,10 +7,14 @@
 	<Script file="modules\extras\Custom_Actionbar.lua"/>	
 	<Script file="modules\extras\Epic_Trinkets.lua"/>	
 	<Script file="modules\extras\raidbuffReminder.lua"/>		
+	<Script file="modules\extras\spechelper.lua"/>
+	<Script file="modules\extras\hoveroverdot.lua"/>
 	
 	<Script file="modules\panels\panels.lua"/>
-	<Script file="modules\extras\spechelper.lua"/>
 	<Script file="modules\chat\chat.lua"/>	
+	
+	<Script file="modules\blizzard\watchframe.lua"/>	
+	<Script file="modules\blizzard\kill.lua"/>	
 	
 	<Script file="modules\unitframes\Plugins\AuraTracker.lua"/>
 	<Script file="modules\unitframes\Plugins\ClassIcons.lua"/>

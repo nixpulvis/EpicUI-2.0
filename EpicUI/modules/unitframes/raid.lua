@@ -2,6 +2,7 @@
 
 local T, C, L = unpack(Tukui)
 
+--[[
 --------------------------------------------------------------
 -- Edit Unit Raid Frames here!
 --------------------------------------------------------------
@@ -54,10 +55,9 @@ local function EditUnitFrame(frame, header)
 	
 	name:SetFont(C.media.pixelfont, 12*C["unitframes"].gridscale*T.raidscale, "MONOCHROMEOUTLINE")
 	-- for layout-specifics, here we edit only 1 layout at time
-	if header == TukuiRaid25 then
-		-- more blah
-	elseif header == TukuiRaid40 then
-		-- more blah
+	if header == TukuiRaid25 or header == TukuiRaid40 then
+		name:ClearAllPoints()
+		name:SetPoint("LEFT", 2, 1)
 	elseif header == TukuiRaidHealer15 then
 		-- more blah
 	elseif header == TukuiRaidHealerGrid then		
@@ -85,17 +85,38 @@ local function EditUnitAttributes(layout)
 	local grid = layout:match("HealerGrid")
 	
 	-- set your new attributes here, in this example we only resize units, X/Y offset and column spacing to Grid.
-	if dpsmax25 then
-		header:SetAttribute("initial-height", 20)
-	elseif dpsmax40 then
-		header:SetAttribute("initial-height", 12)
-	elseif grid then
-		header:SetAttribute("initial-width", 90)
-		header:SetAttribute("initial-height", 45)
-		header:SetAttribute("xoffset", 2)
-		header:SetAttribute("yOffset", -2)
-		header:SetAttribute("columnSpacing", T.Scale(2))
+	local function SetAttributes()
+		if dpsmax25 or dpsmax40 then
+			header:SetAttribute("initial-width", 75)
+			header:SetAttribute("initial-height", 20)
+			header:SetAttribute("xoffset", T.Scale(3))
+			header:SetAttribute("yOffset", T.Scale(-3))
+			header:SetAttribute("point", "LEFT")
+			header:SetAttribute("groupFilter", "1,2,3,4,5,6,7,8")
+			header:SetAttribute("groupingOrder", "1,2,3,4,5,6,7,8")
+			header:SetAttribute("groupBy", "GROUP")
+			header:SetAttribute("maxColumns", 8)
+			header:SetAttribute("unitsPerColumn", 5)
+			header:SetAttribute("columnSpacing", T.Scale(3))
+			header:SetAttribute("columnAnchorPoint", "TOP")
+			
+			header:ClearAllPoints()
+			header:Point("BOTTOMLEFT", TukuiChatBackgroundLeft, "TOPLEFT", 0, 300)
+		elseif grid then
+		
+		end
 	end
+	
+	SetAttributes()
+	if dpsmax25 or dpsmax40 then
+		for i = 1, header:GetNumChildren() do
+			local child = select(i, header:GetChildren())
+			if child and child.unit then
+				child:ClearAllPoints()
+			end
+		end	
+	end
+	SetAttributes()
 end
 
 --------------------------------------------------------------
@@ -179,12 +200,12 @@ local function InitScript()
 
 	-- init, here we modify the initial Config.
 	local function SpawnHeader(name, layout, visibility, ...)
-		EditUnitAttributes(layout)
+		EditUnitAttributes(layout)                                           
 	end
 	
 	-- this is the function oUF framework use to create and set attributes to headers
 	hooksecurefunc(oUF, "SpawnHeader", SpawnHeader)
-
+	
 	local style = CreateFrame("Frame")
 	style:RegisterEvent("PLAYER_ENTERING_WORLD")
 	style:RegisterEvent("PARTY_MEMBERS_CHANGED")
@@ -198,130 +219,4 @@ script:SetScript("OnEvent", function(self, event, addon)
 	if addon == "Tukui_Raid" or addon == "Tukui_Raid_Healing" then
 		InitScript()
 	end
-end)
-
-
-
-
-
---[[
-
-
-
-local T, C, L = unpack(Tukui)
-C.unitframes.gridonly = true
-
-local children
-
-local GetActiveLayout = function()
-	local players = (GetNumPartyMembers() + 1)
-	if UnitInRaid("player") then
-		players = GetNumRaidMembers()
-	end
-
-	if IsAddOnLoaded("Tukui_Raid_Healing") then
-		return TukuiRaidHealerGrid
-	elseif IsAddOnLoaded("Tukui_Raid") then
-		if players <= 25 then
-			return TukuiRaid25
-		elseif players > 25 then
-			return TukuiRaid40
-		end
-	end
-end
-
-local StyleRaidFrames = function()
-	local layout = GetActiveLayout()
-	children = {GetActiveLayout():GetChildren()}
-
-	for _, self in pairs(children) do
-		if (self and self.unit) then
-			local name = self.Name
-			local health = self.Health
-			local Name = self.Name
-			local power
-			
-			if layout ~= TukuiRaid40 then
-				power = self.Power
-				power:ClearAllPoints()
-				power:SetAllPoints()
-				power.bg.multiplier = 0.3
-			else
-				power = CreateFrame("StatusBar", nil, self)
-				power:SetAllPoints()
-				power:SetStatusBarTexture(C["media"].normTex)
-				self.Power = power
-
-				power.frequentUpdates = true
-				power.colorDisconnected = true
-
-				power.bg = power:CreateTexture(nil, "BORDER")
-				power.bg:SetAllPoints(power)
-				power.bg:SetTexture(C["media"].normTex)
-				power.bg:SetAlpha(1)
-				power.bg.multiplier = 0.4
-				
-				if C.unitframes.unicolor == true then
-					power.colorClass = true
-					power.bg.multiplier = 0.1				
-				else
-					power.colorPower = true
-					power.PostUpdate = T.PreUpdatePower
-				end
-				self:EnableElement('Power')
-			end
-			
-			health:ClearAllPoints()
-			health:SetPoint("TOPLEFT", power, "TOPLEFT", 2, -2)
-			health:SetPoint("BOTTOMRIGHT", power, "BOTTOMRIGHT", -2, 2)
-			health:CreateBorder(false, true)
-			health:SetStatusBarColor(.2, .2, .2)
-			health:SetFrameLevel(4)
-			
-			if C["unitframes"].unicolor == true then
-				health.bg:SetTexture(.6,.6,.6)
-				health.bg:SetVertexColor(unpack(C.unitframes.deficitcolor))
-			end
-
-			-- Unit name on target
-			Name:ClearAllPoints()
-			Name:SetParent(health)
-			Name:SetFont(C.media.pixelfont, 12, "MONOCHROMEOUTLINE")
-			
-			if layout == TukuiRaidHealerGrid then
-				self:Size(74, 40)
-				
-				self.panel:ClearAllPoints()
-				self.panel:Size(Name:GetStringWidth()+6, 12)
-				self.panel:Point("CENTER", self, "CENTER", 0, 2)
-				self.panel:SetFrameStrata("MEDIUM")
-				self.panel:SetFrameLevel(5)				
-				
-				Name:ClearAllPoints()
-				Name:SetParent(self.panel)
-				Name:Point("LEFT", self.panel, "LEFT", 4, 1)
-				
-				health.value:Point("BOTTOM", health, "BOTTOM", 0, 2)
-				health.value:SetFont(C.media.pixelfont, 12, "MONOCHROMEOUTLINE")
-				health.value:SetShadowColor(0,0,0,0)				
-			elseif layout == TukuiRaid25 then
-				self:Size(74, 25)
-				Name:Point("TOPLEFT", health, "TOPLEFT", 4, 0)
-			elseif layout == TukuiRaid40 then
-				self:Size(74, 15)
-				Name:Point("TOPLEFT", health, "TOPLEFT", 4, 0)
-			end
-		end
-	end
-	
-	-- TukuiRaidHealerGrid:SetAttribute("xoffset", T.Scale(3))
-	-- TukuiRaidHealerGrid:SetAttribute("yoffset", T.Scale(-3))
-	-- TukuiRaidHealerGrid:SetAttribute("initial-width", T.Scale(75*C["unitframes"].gridscale*T.raidscale))
-	-- TukuiRaidHealerGrid:SetAttribute("initial-height", T.Scale(40*C["unitframes"].gridscale*T.raidscale))
-end
-
-local f = CreateFrame("Frame")
-f:RegisterEvent("PLAYER_ENTERING_WORLD")
-f:RegisterEvent("PARTY_MEMBERS_CHANGED")
-f:RegisterEvent("RAID_ROSTER_UPDATE")
-f:SetScript("OnEvent", StyleRaidFrames)]]
+end)]]
