@@ -238,7 +238,7 @@ end)
 local btnsize = 20
 
 local gearpanel = CreateFrame("Frame", "SHGearPanel", shpanel)
-gearpanel:CreatePanel("Default", 75, 1, "TOPRIGHT", shpanel, "TOPLEFT", -3, 0)
+gearpanel:CreatePanel("Default", 100, 1, "TOPRIGHT", shpanel, "TOPLEFT", -3, 0)
 gearpanel:SetFrameStrata("High")
 gearpanel:Hide()
 
@@ -339,54 +339,76 @@ geartoggle:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpac
 geartoggle:SetScript("OnClick", function(self) TogglePanel(gearpanel) end)
 
 ------------
---Move UI
-------------
-local mui = CreateFrame("Button", nil, geartoggle, "SecureActionButtonTemplate")
-mui:CreatePanel("Default", (geartoggle:GetWidth()/2)-3, 20, "TOPLEFT", geartoggle, "BOTTOMLEFT", 0, -2)
-
-mui.t = mui:CreateFontString(nil, "OVERLAY")
-mui.t:SetPoint("CENTER")
-mui.t:SetFont(C.media.font, C.datatext.fontsize)
-mui.t:SetText("Move UI")
-
-mui:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(C.general.highlighted)) end)
-mui:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.general.bordercolor)) end)
-mui:SetAttribute("type", "macro")
-mui:SetAttribute("macrotext", "/moveui")
-	
-------------
---Key Binds
-------------
-local binds = CreateFrame("Button", nil, mui, "SecureActionButtonTemplate")
-binds:CreatePanel("Default", (spec:GetWidth()/2)-4, 20, "LEFT", mui, "RIGHT", 2, 0)
-
-binds.t = binds:CreateFontString(nil, "OVERLAY")
-binds.t:SetPoint("CENTER")
-binds.t:SetFont(C.media.font, C.datatext.fontsize)
-binds.t:SetText("Keybinds")
-
-binds:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(C.general.highlighted)) end)
-binds:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.general.bordercolor)) end)
-binds:SetAttribute("type", "macro")
-binds:SetAttribute("macrotext", "/bindkey")
-
-------------
 -- Glyphs
 ------------
+local glyphbutton = {}
+local primeOrder = {}
+local majorOrder = {}
+local minorOrder = {}
+
+for i = 1, NUM_GLYPH_SLOTS do
+	local glyphType = select(2, GetGlyphSocketInfo(i))
+	if glyphType == 2 then
+		tinsert(minorOrder, i)
+	elseif glyphType == 1 then
+		tinsert(majorOrder, i)
+	else
+		tinsert(primeOrder, i)
+	end
+end
+table.foreach(majorOrder, print)
+
 local glyphpanel = CreateFrame("Frame", "SHGlyphPanel", shpanel)
-glyphpanel:CreatePanel("Default", 300, 200, "TOPRIGHT", shpanel, "TOPLEFT", -3, 0)
+glyphpanel:CreatePanel("Default", 76, 135, "TOPRIGHT", shpanel, "TOPLEFT", -3, 0)
 glyphpanel:SetFrameStrata("HIGH")
 glyphpanel:Hide()
 
-local glyphbutton = {}
+--Prime
+glyphpanel.primeT = glyphpanel:CreateFontString(nil, "OVERLAY")
+glyphpanel.primeT:SetPoint("TOPLEFT", 5, -5)
+glyphpanel.primeT:SetFont(C.media.font, C.datatext.fontsize)
+glyphpanel.primeT:SetText("Prime")
+
+--Major
+glyphpanel.majorT = glyphpanel:CreateFontString(nil, "OVERLAY")
+glyphpanel.majorT:SetPoint("TOPLEFT", 5, -50)
+glyphpanel.majorT:SetFont(C.media.font, C.datatext.fontsize)
+glyphpanel.majorT:SetText("Major")
+
+--Minor
+glyphpanel.minorT = glyphpanel:CreateFontString(nil, "OVERLAY")
+glyphpanel.minorT:SetPoint("TOPLEFT", 5, -95)
+glyphpanel.minorT:SetFont(C.media.font, C.datatext.fontsize)
+glyphpanel.minorT:SetText("Minor")
+
 for i = 1, NUM_GLYPH_SLOTS do
 	local enabled, glyphType, glyphTooltipIndex, glyphSpellID, icon = GetGlyphSocketInfo(i)
-	
 	glyphbutton[i] = CreateFrame("Frame", "FrameGlyph"..i, glyphpanel)	
-	if i == 1 then
-		glyphbutton[i]:CreatePanel("Default", 20, 20, "TOPLEFT", glyphpanel, "TOPLEFT", 3, -3)
-	else
-		glyphbutton[i]:CreatePanel("Default", 20, 20, "TOP", glyphbutton[i-1], "BOTTOM", 0, -3)
+	
+	if glyphType == 1 then
+		if i == majorOrder[1] then
+			glyphbutton[i]:CreatePanel("Default", 20, 20, "TOPLEFT", glyphpanel.majorT, "BOTTOMLEFT", 0, -3)
+		elseif i == majorOrder[2] then
+			glyphbutton[i]:CreatePanel("Default", 20, 20, "LEFT", glyphbutton[majorOrder[1]], "RIGHT", 3, 0)																     
+		elseif i == majorOrder[3] then
+			glyphbutton[i]:CreatePanel("Default", 20, 20, "LEFT", glyphbutton[majorOrder[2]], "RIGHT", 3, 0)	
+		end
+	elseif glyphType == 2 then
+		if i == minorOrder[1] then
+			glyphbutton[i]:CreatePanel("Default", 20, 20, "TOPLEFT", glyphpanel.minorT, "BOTTOMLEFT", 0, -3)
+		elseif i == minorOrder[2] then
+			glyphbutton[i]:CreatePanel("Default", 20, 20, "LEFT", glyphbutton[minorOrder[1]], "RIGHT", 3, 0)																     
+		elseif i == minorOrder[3] then
+			glyphbutton[i]:CreatePanel("Default", 20, 20, "LEFT", glyphbutton[minorOrder[2]], "RIGHT", 3, 0)	
+		end
+	elseif glyphType == 3 then
+		if i == primeOrder[1] then
+			glyphbutton[i]:CreatePanel("Default", 20, 20, "TOPLEFT", glyphpanel.primeT, "BOTTOMLEFT", 0, -3)
+		elseif i == primeOrder[2] then
+			glyphbutton[i]:CreatePanel("Default", 20, 20, "LEFT", glyphbutton[primeOrder[1]], "RIGHT", 3, 0)																     
+		elseif i == primeOrder[3] then
+			glyphbutton[i]:CreatePanel("Default", 20, 20, "LEFT", glyphbutton[primeOrder[2]], "RIGHT", 3, 0)	
+		end			
 	end
 	glyphbutton[i]:SetFrameStrata("HIGH")
 	glyphbutton[i].tex = glyphbutton[i]:CreateTexture(nil, "OVERLAY")
@@ -394,7 +416,7 @@ for i = 1, NUM_GLYPH_SLOTS do
 	glyphbutton[i].tex:Point("TOPLEFT", 2, -2)
 	glyphbutton[i].tex:Point("BOTTOMRIGHT", -2, 2)
 	glyphbutton[i].tex:SetTexture(icon)
-
+	
 	glyphbutton[i]:EnableMouse(true)
 	glyphbutton[i]:SetScript("OnEnter", function(self) 
 		GameTooltip:SetOwner(self,"ANCHOR_BOTTOM", 0, -4)
@@ -411,8 +433,8 @@ for i = 1, NUM_GLYPH_SLOTS do
 end
 
 --toggle
-local glyphs = CreateFrame("Button", nil, mui)
-glyphs:CreatePanel("Default", spec:GetWidth()-4, 20, "TOPLEFT", mui, "BOTTOMLEFT", 0, -3)
+local glyphs = CreateFrame("Button", nil, shpanel)
+glyphs:CreatePanel("Default", spec:GetWidth()-4, 20, "TOPLEFT", geartoggle, "BOTTOMLEFT", 0, -3)
 
 glyphs.t = glyphs:CreateFontString(nil, "OVERLAY")
 glyphs.t:SetPoint("CENTER")
@@ -422,8 +444,5 @@ glyphs.t:SetText("Glyphs")
 glyphs:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(C.general.highlighted)) end)
 glyphs:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.general.bordercolor)) end)
 glyphs:SetScript("OnClick", function(self) TogglePanel(glyphpanel) end)
-
-
-
 
 
