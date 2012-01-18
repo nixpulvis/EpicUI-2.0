@@ -9,6 +9,7 @@ C.epicui = {
 C.media = {
 	font = [[Interface\Addons\EpicUI\media\HelveticaNeueLTCom-Cn.ttf]],
 	plusicon = [[Interface\Addons\EpicUI\media\plus_icon.tga]],
+	closeicon = [[Interface\Addons\EpicUI\media\close_icon.tga]],
 	dpsicon = [[Interface\Addons\EpicUI\media\switch_layout_dd.tga]],
 	healicon = [[Interface\Addons\EpicUI\media\switch_layout_heal.tga]],
 }

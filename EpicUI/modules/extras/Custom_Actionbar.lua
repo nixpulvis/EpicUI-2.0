@@ -2,6 +2,8 @@ local T, C, L = unpack(Tukui)
 
 local bsize = C.actionbar.buttonsize + 6
 local TimeSinceLastUpdate = 0
+local MAXSPELLS =  6
+
 local custombar = CreateFrame("Frame", "CustomTukuiActionBar", TukuiPlayer, "SecureHandlerStateTemplate")
 custombar:CreatePanel("Default", bsize, bsize , "TOPLEFT", TukuiPlayer, "BOTTOMLEFT", -1, -8)
 
@@ -47,44 +49,51 @@ local function GetSpellID(spell)
 	end
 end
 
-DropEpicSpells = function(self, current) 
+local function ActiveSpells()
+	if GetActiveTalentGroup() == 1 then
+		return EpicUIDataPerChar.cabprimary
+	else
+		return EpicUIDataPerChar.cabsecondary
+	end
+end
+
+-- called when adding a new spell to the AB (grab true when gragging to a
+-- location that has a spell
+DropEpicSpells = function(self, current, grab)
 	if InCombatLockdown() then return end
 	
 	if CursorHasSpell() or CursorHasItem() then
 		local infoType, info1, info2 = GetCursorInfo()
-		local data = EpicUIDataPerChar.cabprimary
+		local data = ActiveSpells()
 		
-		if (infoType == "item") then
-			EpicUIDataPerChar.cabprimary = replaceadd(data, current, info1)
-		elseif (infoType == "spell") then
-			local spellType, id = GetSpellBookItemInfo(info1, info2)
-			EpicUIDataPerChar.cabprimary = replaceadd(data, current, GetSpellInfo(id))
+		-- data management
+		if GetActiveTalentGroup() == 1 then
+			if (infoType == "item") then
+				EpicUIDataPerChar.cabprimary = replaceadd(data, current, info1)
+			elseif (infoType == "spell") then
+				local spellType, id = GetSpellBookItemInfo(info1, info2)
+				EpicUIDataPerChar.cabprimary = replaceadd(data, current, GetSpellInfo(id))
+			end
+		else	
+			if (infoType == "item") then
+				EpicUIDataPerChar.cabsecondary = replaceadd(data, current, info1)
+			elseif (infoType == "spell") then
+				local spellType, id = GetSpellBookItemInfo(info1, info2)
+				EpicUIDataPerChar.cabsecondary = replaceadd(data, current, GetSpellInfo(id))
+			end	
 		end
-		ClearCursor()
-	end
-end
-
-DropnGrabEpicSpells = function(self, current)
-	if InCombatLockdown() then return end
 	
-	if CursorHasSpell() or CursorHasItem() then
-		local infoType, info1, info2 = GetCursorInfo()
-		local data = EpicUIDataPerChar.cabprimary
-		
-		if (infoType == "item") then
-			EpicUIDataPerChar.cabprimary = replaceadd(data, current, info1)
-		elseif (infoType == "spell") then
-			local spellType, id = GetSpellBookItemInfo(info1, info2)
-			EpicUIDataPerChar.cabprimary = replaceadd(data, current, GetSpellInfo(id))
-		end
 		ClearCursor()
-		PickupSpell(GetSpellID(current))
+		if grab then
+			PickupSpell(GetSpellID(current))
+		end
 	end
 end
 
+-- called when removing a spell
 DragEpicSpells = function(current) 
 	if InCombatLockdown() then return end
-	removebyvalue(EpicUIDataPerChar.cabprimary, current)
+	removebyvalue(ActiveSpells(), current)
 	
 	PickupSpell(GetSpellID(current))
 end
@@ -121,7 +130,7 @@ local function MakeButtons()
 	--local custombuttonover = {}
 	local dropframe = CustomActionBarDropFrame
 	custombutton = CreateFrame("Button", "CustomButton", custombar, "SecureActionButtonTemplate")
-	if #EpicUIDataPerChar.cabprimary == 0 then
+	if #ActiveSpells() == 0 then
 		custombar:Hide()
 		dropframe:Point("TOPLEFT", TukuiPlayer, "BOTTOMLEFT", -1, -8)
 	else
@@ -132,10 +141,10 @@ local function MakeButtons()
 		custombarline2:CreatePanel("Default", 2, 18, "BOTTOMLEFT", custombar, "TOPLEFT", 15, 0)
 		custombarline2:SetFrameStrata("BACKGROUND")
 		custombar:Show()
-		custombar:SetWidth((#EpicUIDataPerChar.cabprimary)*bsize - (#EpicUIDataPerChar.cabprimary-1))
+		custombar:SetWidth((#ActiveSpells())*bsize - (#ActiveSpells()-1))
 	end
 	
-	for i, v in ipairs(EpicUIDataPerChar.cabprimary) do
+	for i, v in ipairs(ActiveSpells()) do
 		--button stuffz
 		custombutton[i] = CreateFrame("Button", "PrimaryCustomButton"..i, custombar, "SecureActionButtonTemplate")
 		custombutton[i]:Size(bsize, bsize)
@@ -166,8 +175,8 @@ local function MakeButtons()
 		
 		custombutton[i].mouse = CreateFrame("Button", nil, custombutton[i])
 		custombutton[i].mouse:SetAllPoints()
-		custombutton[i].mouse:SetScript("OnReceiveDrag", function(self) DropnGrabEpicSpells(self, v) end)
-		custombutton[i].mouse:SetScript("OnClick", function(self) DropnGrabEpicSpells(self, v) end)
+		custombutton[i].mouse:SetScript("OnReceiveDrag", function(self) DropEpicSpells(self, v, true) end)
+		custombutton[i].mouse:SetScript("OnClick", function(self) DropEpicSpells(self, v, true) end)
 		custombutton[i].mouse:SetScript("OnUpdate", function(self)
 			if CursorHasSpell() or CursorHasItem() then
 				self:EnableMouse(true)
@@ -252,10 +261,8 @@ local function MakeButtons()
 	end
 end
 
-local function Kill(more)
-	local val =  #EpicUIDataPerChar.cabprimary
-	if more then val = val + 1 end
-	for i = 1, val do
+local function KillButtons()
+	for i = 1, MAXSPELLS+1 do
 		if _G["PrimaryCustomButton"..i] then
 			_G["PrimaryCustomButton"..i]:Kill()
 			_G["PrimaryCustomButton"..i] = nil
@@ -268,26 +275,30 @@ local function Kill(more)
 	end
 end
 
-local function MakeNewButtons(removing)
+local function MakeNewButtons()
 	if InCombatLockdown() then return end
-	if removing then Kill(true) else Kill(false) end
+	KillButtons()
 	MakeButtons()
 end
 
 hooksecurefunc("DropEpicSpells", function() MakeNewButtons() end)
-hooksecurefunc("DropnGrabEpicSpells", function() MakeNewButtons() end)
-hooksecurefunc("DragEpicSpells", function() MakeNewButtons(true) end)
+hooksecurefunc("DragEpicSpells", function() MakeNewButtons() end)
 
 -- Area To Add Spells
 local dropframe = CreateFrame("Button", "CustomActionBarDropFrame", UIParent)
 dropframe:Size(bsize, bsize)
-dropframe:SetNormalTexture(C.media.plusicon)
 dropframe:SetTemplate("Default")
 dropframe:SetAlpha(0)
 dropframe:StyleButton()
-dropframe:SetScript("OnReceiveDrag", function() DropEpicSpells() MakeNewButtons() end)
-dropframe:SetScript("OnMouseUp", function() DropEpicSpells() MakeNewButtons() end)
+dropframe:SetScript("OnReceiveDrag", function() if #ActiveSpells() < MAXSPELLS then DropEpicSpells() MakeNewButtons() end end)
+dropframe:SetScript("OnMouseUp", function() if #ActiveSpells() < MAXSPELLS then DropEpicSpells() MakeNewButtons() end end)
 dropframe:SetScript("OnUpdate", function()
+	if #ActiveSpells() < MAXSPELLS then
+		dropframe:SetNormalTexture(C.media.plusicon)
+	else
+		dropframe:SetNormalTexture(C.media.closeicon)
+	end
+	
 	if CursorHasSpell() or CursorHasItem() then
 		dropframe:SetAlpha(1)
 	else
@@ -300,10 +311,10 @@ f:RegisterEvent("VARIABLES_LOADED")
 f:RegisterEvent("PLAYER_ENTERING_WORLD")
 f:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 f:SetScript("OnEvent", function(self, event)
-	if event == "VARIABLES_LOADED" then
-		if not EpicUIDataPerChar then EpicUIDataPerChar = {} end
-		if not EpicUIDataPerChar.cabprimary then EpicUIDataPerChar.cabprimary = {} end
-	else
-		MakeNewButtons()
-	end
+	if not EpicUIDataPerChar then EpicUIDataPerChar = {} end
+	if not EpicUIDataPerChar.cabprimary then EpicUIDataPerChar.cabprimary = {} end
+	if not EpicUIDataPerChar.cabsecondary then EpicUIDataPerChar.cabsecondary = {} end
+	
+	MakeNewButtons()
+	print(#ActiveSpells())
 end)
