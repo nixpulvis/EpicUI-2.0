@@ -356,6 +356,7 @@ local primeOrder = {}
 local majorOrder = {}
 local minorOrder = {}
 
+-- why are glyphs so difficult
 for i = 1, NUM_GLYPH_SLOTS do
 	local glyphType = select(2, GetGlyphSocketInfo(i))
 	if glyphType == 2 then
@@ -390,6 +391,35 @@ glyphpanel.minorT:SetPoint("TOPLEFT", 5, -95)
 glyphpanel.minorT:SetFont(C.media.font, C.datatext.fontsize)
 glyphpanel.minorT:SetText("Minor")
 
+local function SetupGlyph(self, i)
+	local enabled, glyphType, glyphTooltipIndex, glyphSpellID, icon = GetGlyphSocketInfo(i)
+	
+	-- Icon
+	self:SetFrameStrata("HIGH")
+	if not self.tex then
+		self.tex = self:CreateTexture(nil, "OVERLAY")
+		self.tex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+		self.tex:Point("TOPLEFT", 2, -2)
+		self.tex:Point("BOTTOMRIGHT", -2, 2)
+	end
+	self.tex:SetTexture(icon)
+	
+	-- Tooltip
+	self:EnableMouse(true)
+	self:SetScript("OnEnter", function(self) 
+		GameTooltip:SetOwner(self,"ANCHOR_BOTTOM", 0, -4)
+		GameTooltip:SetClampedToScreen(true)
+		GameTooltip:ClearLines()
+		GameTooltip:SetGlyph(i, nil)
+		GameTooltip:Show()
+		self:SetBackdropBorderColor(unpack(C.general.highlighted)) 
+	end)
+	self:SetScript("OnLeave", function(self) 
+		GameTooltip_Hide() 
+		self:SetBackdropBorderColor(unpack(C.general.bordercolor))
+	end)
+end
+
 for i = 1, NUM_GLYPH_SLOTS do
 	local enabled, glyphType, glyphTooltipIndex, glyphSpellID, icon = GetGlyphSocketInfo(i)
 	glyphbutton[i] = CreateFrame("Frame", "FrameGlyph"..i, glyphpanel)	
@@ -420,29 +450,22 @@ for i = 1, NUM_GLYPH_SLOTS do
 		end			
 	end
 	
-	-- Icon
-	glyphbutton[i]:SetFrameStrata("HIGH")
-	glyphbutton[i].tex = glyphbutton[i]:CreateTexture(nil, "OVERLAY")
-	glyphbutton[i].tex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-	glyphbutton[i].tex:Point("TOPLEFT", 2, -2)
-	glyphbutton[i].tex:Point("BOTTOMRIGHT", -2, 2)
-	glyphbutton[i].tex:SetTexture(icon)
+	SetupGlyph(glyphbutton[i], i)
 	
-	-- Tooltip
-	glyphbutton[i]:EnableMouse(true)
-	glyphbutton[i]:SetScript("OnEnter", function(self) 
-		GameTooltip:SetOwner(self,"ANCHOR_BOTTOM", 0, -4)
-		GameTooltip:SetClampedToScreen(true)
-		GameTooltip:ClearLines()
-		GameTooltip:SetGlyph(i, 1)
-		GameTooltip:Show()
-		self:SetBackdropBorderColor(unpack(C.general.highlighted)) 
-	end)
-	glyphbutton[i]:SetScript("OnLeave", function(self) 
-		GameTooltip_Hide() 
-		self:SetBackdropBorderColor(unpack(C.general.bordercolor))
-	end)
+	glyphbutton[i]:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+	glyphbutton[i]:SetScript("OnEvent", function(self, event)
+		SetupGlyph(self, i)
+		print("Shits getting done", i)
+	end) 
 end
+
+-- glyphpanel:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+-- glyphpanel:SetScript("OnEvent", function()
+	-- for i = 1, NUM_GLYPH_SLOTS do
+		-- SetupGlyph(glyphbutton[i], i)
+		-- print("Shits getting done", i)
+	-- end
+-- end) 
 
 --toggle
 local glyphs = CreateFrame("Button", nil, shpanel)

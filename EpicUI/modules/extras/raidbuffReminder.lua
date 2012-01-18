@@ -411,7 +411,7 @@ local function LabelType(bufftype)
 	elseif bufftype == "crit5" then
 		return "5% Crit"
 	elseif bufftype == "ap10" then
-		return "10% Attack Power"
+		return "20% Attack Power"
 	elseif bufftype == "spellhaste" then
 		return "5% Spell Haste"
 	elseif bufftype == "sp10" then
@@ -472,6 +472,7 @@ end
 
 local raidbuffsummury = CreateFrame("Frame", "RaidBuffSummery", UIParent)
 raidbuffsummury:CreatePanel("Default", 435, 425, "TOP", raidbuff_reminder, "BOTTOM", 0, -3)
+raidbuffsummury:SetFrameStrata("High")
 raidbuffsummury:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 raidbuffsummury:RegisterEvent("UNIT_INVENTORY_CHANGED")
 raidbuffsummury:RegisterEvent("UNIT_AURA")
@@ -503,11 +504,11 @@ local SetupTooltip = function(self)
 end
 
 local function CreateBuffArea(bufftype, relativeTo, column)
-	local bigButton = CreateFrame("Frame", bufftype.."Frame", RaidBuffSummery)
+	local bigButton = CreateFrame("Frame", bufftype.."Frame", raidbuffsummury)
 	if column == 1 then
-		bigButton:CreatePanel("Default", 40, 40, "TOPLEFT", RaidBuffSummery, "TOPLEFT", 14, -14)
+		bigButton:CreatePanel("Default", 40, 40, "TOPLEFT", raidbuffsummury, "TOPLEFT", 14, -14)
 	elseif column == 2 then
-		bigButton:CreatePanel("Default", 40, 40, "TOPLEFT", RaidBuffSummery, "TOPLEFT", 250, -14)
+		bigButton:CreatePanel("Default", 40, 40, "TOPLEFT", raidbuffsummury, "TOPLEFT", 250, -14)
 	else
 		bigButton:CreatePanel("Default", 40, 40, "TOPLEFT", relativeTo, "BOTTOMLEFT", 0, -16)
 	end

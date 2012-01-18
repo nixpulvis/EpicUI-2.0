@@ -316,5 +316,4 @@ f:SetScript("OnEvent", function(self, event)
 	if not EpicUIDataPerChar.cabsecondary then EpicUIDataPerChar.cabsecondary = {} end
 	
 	MakeNewButtons()
-	print(#ActiveSpells())
 end)
