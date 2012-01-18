@@ -7,7 +7,7 @@ local dr, dg, db = unpack(C.general.highlighted)
 panelcolor = ("|cff%.2x%.2x%.2x"):format(dr * 255, dg * 255, db * 255)
 
 -- Gear Settings
-local Autogearswap = false -- make this a setting
+local Autogearswap = C.epicui.autogearswap
 
 --functions
 local function GetUnactiveTalentGroup()
@@ -46,10 +46,13 @@ local function HasUnactiveTalents()
 end
 
 local function SwitchSpecs()
-	if IsShiftKeyDown() then ToggleTalentFrame() end
-	local i = GetActiveTalentGroup()
-	if i == 1 then SetActiveTalentGroup(2) end
-	if i == 2 then SetActiveTalentGroup(1) end
+	if IsShiftKeyDown() then 
+		ToggleTalentFrame() 
+	else
+		local i = GetActiveTalentGroup()
+		if i == 1 then SetActiveTalentGroup(2) end
+		if i == 2 then SetActiveTalentGroup(1) end
+	end
 end
 
 local function AutoGear()
@@ -165,6 +168,7 @@ layout.tex:Point("BOTTOMRIGHT", -2, 2)
 layout.tex:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 
 local SetIcon = function(self)
+	if not (IsAddOnLoaded("EpicUI_Raid_Healing") or IsAddOnLoaded("EpicUI_Raid")) then return end
 	local tex, switchto
 	if IsAddOnLoaded("EpicUI_Raid") then
 		tex = C.media.dpsicon
@@ -202,7 +206,7 @@ layout:EnableMouse(true)
 --Panel
 ---------
 local shpanel = CreateFrame("Frame", "SHPanel", spec)
-shpanel:CreatePanel("Default", spec:GetWidth(), 72, "TOP", spec, "BOTTOM", 0, -3)
+shpanel:CreatePanel("Default", spec:GetWidth(), 49, "TOP", spec, "BOTTOM", 0, -3)
 shpanel:Hide()
 
 ------------
@@ -243,10 +247,10 @@ gearpanel:SetFrameStrata("High")
 gearpanel:Hide()
 
 local gearSets = CreateFrame("Frame", nil, gearpanel)	
-for i = 1, 6 do
+for i = 1, 10 do
 	gearSets[i] = CreateFrame("Button", nil, gearpanel)
 	gearSets[i]:SetTemplate()
-	gearSets[i]:Size(btnsize, btnsize)
+	gearSets[i]:Size(94, btnsize)
 
 	if i == 1 then
 		gearSets[i]:Point("TOPLEFT", gearpanel, "TOPLEFT", 3, -3)
@@ -258,12 +262,12 @@ end
 
 local function SetGearButtons(self, event)		
 	local sets = GetNumEquipmentSets()
-	if sets > 6 then
-		sets = 6
+	if sets > 10 then
+		sets = 10
 	end
 
-	if sets < 6 then
-		for i = sets+1, 6 do
+	if sets < 10 then
+		for i = sets+1, 10 do
 			gearSets[i]:Hide()
 		end
 	end
@@ -273,14 +277,17 @@ local function SetGearButtons(self, event)
 		local name, icon, setID, isEquipped, totalItems, equippedItems, inventoryItems, missingItems, ignoredSlots = GetEquipmentSetInfo(i)
 		
 		-- button creation
-		if event == "PLAYER_ENTERING_WORLD" then
+		if not gearSets[i].texture then
+			gearSets[i].div = CreateFrame("Frame", nil, gearSets[i])
+			gearSets[i].div:CreatePanel("Default", 1, 20, "BOTTOMLEFT", gearSets[i], "BOTTOMLEFT", 20, 0)
+			
 			gearSets[i].texture = gearSets[i]:CreateTexture(nil, "BORDER")
 			gearSets[i].texture:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 			gearSets[i].texture:SetPoint("TOPLEFT", gearSets[i] ,"TOPLEFT", 2, -2)
-			gearSets[i].texture:SetPoint("BOTTOMRIGHT", gearSets[i] ,"BOTTOMRIGHT", -2, 2)
+			gearSets[i].texture:SetPoint("BOTTOMRIGHT", gearSets[i].div ,"BOTTOMRIGHT", -2, 2)
 		
 			gearSets[i].name = gearSets[i]:CreateFontString(nil, "OVERLAY")
-			gearSets[i].name:SetPoint("LEFT", gearSets[i], "RIGHT", 3, 0)
+			gearSets[i].name:SetPoint("LEFT", gearSets[i].div, "RIGHT", 3, 0)
 			gearSets[i].name:SetFont(C.media.font, C.datatext.fontsize)
 		
 			gearSets[i]:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(C.general.highlighted)) end)
@@ -333,10 +340,13 @@ geartoggle.t = geartoggle:CreateFontString(nil, "OVERLAY")
 geartoggle.t:SetPoint("CENTER")
 geartoggle.t:SetFont(C.media.font, C.datatext.fontsize)
 geartoggle.t:SetText("Gear Sets ("..GetNumEquipmentSets()..")")
-
+	
+geartoggle:RegisterEvent("PLAYER_ENTERING_WORLD")
+geartoggle:RegisterEvent("EQUIPMENT_SETS_CHANGED")
+geartoggle:SetScript("OnEvent", function(self) geartoggle.t:SetText("Gear Sets ("..GetNumEquipmentSets()..")") end)
 geartoggle:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(C.general.highlighted)) end)
 geartoggle:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.general.bordercolor)) end)
-geartoggle:SetScript("OnClick", function(self) TogglePanel(gearpanel) end)
+geartoggle:SetScript("OnClick", function(self) if GetNumEquipmentSets() > 0 then TogglePanel(gearpanel) end end)
 
 ------------
 -- Glyphs
@@ -356,7 +366,6 @@ for i = 1, NUM_GLYPH_SLOTS do
 		tinsert(primeOrder, i)
 	end
 end
-table.foreach(majorOrder, print)
 
 local glyphpanel = CreateFrame("Frame", "SHGlyphPanel", shpanel)
 glyphpanel:CreatePanel("Default", 76, 135, "TOPRIGHT", shpanel, "TOPLEFT", -3, 0)
@@ -410,6 +419,8 @@ for i = 1, NUM_GLYPH_SLOTS do
 			glyphbutton[i]:CreatePanel("Default", 20, 20, "LEFT", glyphbutton[primeOrder[2]], "RIGHT", 3, 0)	
 		end			
 	end
+	
+	-- Icon
 	glyphbutton[i]:SetFrameStrata("HIGH")
 	glyphbutton[i].tex = glyphbutton[i]:CreateTexture(nil, "OVERLAY")
 	glyphbutton[i].tex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
@@ -417,6 +428,7 @@ for i = 1, NUM_GLYPH_SLOTS do
 	glyphbutton[i].tex:Point("BOTTOMRIGHT", -2, 2)
 	glyphbutton[i].tex:SetTexture(icon)
 	
+	-- Tooltip
 	glyphbutton[i]:EnableMouse(true)
 	glyphbutton[i]:SetScript("OnEnter", function(self) 
 		GameTooltip:SetOwner(self,"ANCHOR_BOTTOM", 0, -4)

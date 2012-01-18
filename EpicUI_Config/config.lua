@@ -2,6 +2,8 @@ local C = {}
 
 C.epicui = {
 	specialbuff = 80398,							-- Optional buff to watch for in the raidbuffReminder, set to nil for nothing.
+	autogearswap = false,							-- Spechelper's gear swapping
+	hoveroverdot = true,							-- Classes Dots on the mouse on mouseover
 }
 
 C.media = {

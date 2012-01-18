@@ -43,6 +43,7 @@
 	<Script file="modules\datatext\something.lua"/>
 	
 	<Script file="modules\misc\combo.lua"/>
+	<Script file="modules\misc\commands.lua"/>
 	
 	<Script file="modules\nameplates\nameplates.lua"/>
 	

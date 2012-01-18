@@ -10,11 +10,9 @@ local dots = {}
 local xoffset = 70
 local bsize = 45
 
-local tempval = false
-
 local enable
 for i, k in ipairs(classes) do
-	if UnitClass("player") == k and tempval == true then
+	if UnitClass("player") == k and C.epicui.hoveroverdot == true then
 		enable = true
 	end
 end
@@ -40,8 +38,8 @@ if enable == true then
 		f.texture:Point("TOPLEFT", f ,"TOPLEFT", 2, -2)
 		f.texture:Point("BOTTOMRIGHT", f ,"BOTTOMRIGHT", -2, 2)
 		
-		f.cooldown = CreateFrame("Cooldown", "$parentCD", f, "CooldownFrameTemplate")
-		f.cooldown:SetAllPoints(f.texture)	
+		-- f.cooldown = CreateFrame("Cooldown", "$parentCD", f, "CooldownFrameTemplate")
+		-- f.cooldown:SetAllPoints(f.texture)	
 		
 		f.textured = true
 	end
@@ -84,13 +82,13 @@ if enable == true then
 				end
 				if Dottable() then
 					if name then
-						local start = expirationTime - duration
+						-- local start = expirationTime - duration
 						dotframe[i].texture:SetTexture(icon)
-						dotframe[i].cooldown:SetCooldown(start, duration)
+						-- dotframe[i].cooldown:SetCooldown(start, duration)
 						dotframe[i].texture:SetVertexColor(1,1,1)
 					else
 						dotframe[i].texture:SetTexture(select(3, GetSpellInfo(v)))
-						dotframe[i].cooldown:SetCooldown(0,0)
+						-- dotframe[i].cooldown:SetCooldown(0,0)
 						dotframe[i].texture:SetVertexColor(1, .15, .15)
 					end
 					anchor:SetAlpha(1)
@@ -101,12 +99,12 @@ if enable == true then
 		end
 	end
 	
-	local function Kill()
+	local function KillButtons()
 		for i = 1, 5 do
 			if _G["MouseoverDot"..i] then
 				_G["MouseoverDot"..i]:Kill()
 				_G["MouseoverDot"..i] = nil
-				_G["MouseoverDot"..i.."CD"]:Kill()
+				-- _G["MouseoverDot"..i.."CD"]:Kill()
 			end
 		end
 	end
@@ -126,7 +124,7 @@ if enable == true then
 			dots = {"Corruption", "Immolate"}
 		end
 		
-		Kill()
+		KillButtons()
 		CreateButtons()
 	end
 
