@@ -1,5 +1,5 @@
 ## Interface: 40300
-## Title: EpicUI for |cffC495DDTukui|r
+## Title: |cffff7d0aEpicUI|r for |cffC495DDTukui|r
 ## Notes: EpicUI for 4.3
 ## Version: 2.1.2
 ## Author: Epicgrim
