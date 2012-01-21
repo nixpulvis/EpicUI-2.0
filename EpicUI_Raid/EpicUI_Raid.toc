@@ -1,0 +1,8 @@
+## Interface: 40300
+## Title: |cffff7d0aEpicUI|r Raid for |cffC495DDTukui|r
+## Notes: EpicUI for 4.3
+## Version: 2.1.3
+## Author: Epicgrim
+## RequiredDeps: EpicUI
+
+raid.lua

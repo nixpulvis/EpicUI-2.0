@@ -1,0 +1,6 @@
+## Interface: 40300
+## Title: |cffff7d0aEpicUI|r Config for |cffC495DDTukui|r
+## Version: 2.1.2
+## Author: Epicgrim
+
+config.lua
