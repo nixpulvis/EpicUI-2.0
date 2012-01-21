@@ -1,0 +1,56 @@
+﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">	
+	<Script file="core\init.lua"/>
+	<Script file="core\api.lua"/>
+	<Script file="core\constants.lua"/>
+	<Script file="core\functions.lua"/>
+	<Script file="core\install.lua"/>
+	
+	<Script file="modules\extras\Custom_Actionbar.lua"/>	
+	<Script file="modules\extras\Epic_Trinkets.lua"/>	
+	<Script file="modules\extras\raidbuffReminder.lua"/>		
+	<Script file="modules\extras\spechelper.lua"/>
+	<Script file="modules\extras\hoveroverdot.lua"/>
+	
+	<Script file="modules\panels\panels.lua"/>
+	<Script file="modules\chat\chat.lua"/>	
+	
+	<Script file="modules\blizzard\watchframe.lua"/>	
+	<Script file="modules\blizzard\kill.lua"/>	
+	
+	<Script file="modules\unitframes\Plugins\AuraTracker.lua"/>
+	<Script file="modules\unitframes\Plugins\ClassIcons.lua"/>
+	<Script file="modules\unitframes\layout.lua"/>
+	<Script file="modules\unitframes\raid.lua"/>
+	
+	<Script file="modules\actionbars\actionbars.lua"/>
+	<Script file="modules\actionbars\stance.lua"/>
+	
+	<Script file="modules\databars\bags.lua"/>
+	<Script file="modules\databars\barPanels.lua"/>
+	<Script file="modules\databars\currency.lua"/>
+	<Script file="modules\databars\durability.lua"/>
+	<Script file="modules\databars\exp_rep.lua"/>
+	<Script file="modules\databars\fps.lua"/>
+	<Script file="modules\databars\latency.lua"/>
+	<Script file="modules\databars\memory.lua"/>
+	<Script file="modules\databars\postCreation.lua"/>
+	<Script file="modules\databars\talents.lua"/>
+	
+	<Script file="modules\buffs\buffs.lua"/>
+	
+	<Script file="modules\datatext\friend.lua"/>
+	<Script file="modules\datatext\guild.lua"/>
+	<Script file="modules\datatext\something.lua"/>
+	<Script file="modules\datatext\something.lua"/>
+	
+	<Script file="modules\misc\combo.lua"/>
+	<Script file="modules\misc\commands.lua"/>
+	
+	<Script file="modules\nameplates\nameplates.lua"/>
+	
+	<Script file="modules\tooltip\tooltip.lua"/>
+	
+	<Script file="core\move.lua"/>
+	
+	<Script file="modules\skins\balancepowertracker.lua"/>
+</Ui>
