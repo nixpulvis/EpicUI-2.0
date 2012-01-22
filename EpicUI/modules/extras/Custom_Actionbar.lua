@@ -1,9 +1,9 @@
 local T, C, L = unpack(Tukui)
 -- DATA SOTRED AT: EpicUIDataPerChar.cabsecondary = {{id, tpye}, ...} AND EpicUIDataPerChar.cabprimary = {{id, tpye}, ...}
 local BUTTON_SIZE = C.actionbar.buttonsize + 6
-local b = {}
-local emptybutton
-local cabframe
+local b = {} 			-- buttons actually stored here
+local emptybutton 		-- this is the drop buttoon
+local cabframe 			-- background of the actionbar
 
 function firstToUpper(str)
     return (str:gsub("^%l", string.upper))
@@ -94,21 +94,19 @@ local function CreateButton(id, metatype)
 	
 	local function SetCooldownTimer(self)
 		local start, duration, enabled
-		if self.metatype == "spell" then
-			start, duration, enabled = GetSpellCooldown(self.id)
-		else
-			start, duration, enabled = GetItemCooldown(self.id)
-		end
+		start, duration, enabled = _G["Get"..firstToUpper(self.metatype).."Cooldown"](self.id)
 		
-		self.cooldown:SetAlpha(1)
-		if enabled == 0 then
-			self.tex:SetVertexColor(.35, .35, .35)
-		elseif start ~= 0 then
-			self.tex:SetVertexColor(1, 1, 1)
+		if (start ~= 0) and (enabled == 1) then
+			self.cooldown:SetAlpha(1)
 			self.cooldown:SetCooldown(start, duration)
 		elseif duration == 0 then
 			self.cooldown:SetAlpha(0)
-			self.cooldown:SetCooldown(0, 0)
+		end
+		
+		if enabled == 0 or (not _G["IsUsable"..firstToUpper(self.metatype)](self.id)) then
+			self.tex:SetVertexColor(.35, .35, .35)
+		else
+			self.tex:SetVertexColor(1, 1, 1)
 		end
 	end
 	
@@ -182,7 +180,7 @@ local function CreateButton(id, metatype)
 	end
 	
 	local function OnEvent(self, event)
-		if event == "SPELL_UPDATE_COOLDOWN" then
+		if event == "SPELL_UPDATE_COOLDOWN" or event == "SPELL_UPDATE_USABLE" then
 			SetCooldownTimer(self)
 		elseif event == "ACTIVE_TALENT_GROUP_CHANGED" then
 			Suicide(self)
@@ -193,6 +191,7 @@ local function CreateButton(id, metatype)
 	button:RegisterEvent("PLAYER_ENTERING_WORLD")
 	button:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 	button:RegisterEvent("SPELL_UPDATE_COOLDOWN")
+	button:RegisterEvent("SPELL_UPDATE_USABLE")
 	button:RegisterEvent("PET_BAR_UPDATE_COOLDOWN")
 	button:RegisterEvent("BAG_UPDATE_COOLDOWN")
 	button:SetScript("OnEvent", OnEvent)
@@ -253,7 +252,7 @@ end
 
 local function CreateButtonFrame()
 	cabframe = CreateFrame("Frame", "EpicUICustomactionbar", UIParent)
-	cabframe:CreatePanel("Default", 1, BUTTON_SIZE+4, "TOPLEFT", TukuiPlayer, "BOTTOMLEFT", 0, -3)
+	cabframe:CreatePanel("Default", 1, BUTTON_SIZE+4, "TOPLEFT", TukuiPlayer, "BOTTOMLEFT", 0, -6)
 	cabframe:SetAlpha(0)
 	
 	local function UpdateFrame()
@@ -273,6 +272,11 @@ local function CreateButtonFrame()
 				divider[i]:CreatePanel("Default", 1, BUTTON_SIZE+4, "BOTTOMLEFT", divider[i-1], "BOTTOMLEFT", BUTTON_SIZE+3, 0)
 			end
 		end
+		
+		if divider[#ActiveTable()] then
+			divider[#ActiveTable()]:Kill()
+			divider[#ActiveTable()] = nil
+		end
 	end
 	UpdateFrame()
 
@@ -286,26 +290,23 @@ local function InitButtons()
 	for i, v in ipairs(ActiveTable()) do
 		b[i] = CreateButton(v[1], v[2])   --v[1] is the ID, v[2] is the metatype
 	end
-	emptybutton = MakeDropButton()
 	RepositionButtons()
 end
 	
 local f = CreateFrame("FRAME")
-f:RegisterEvent("VARIABLES_LOADED")
+f:RegisterEvent("ADDON_LOADED")
 f:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 f:RegisterEvent("PLAYER_ENTERING_WORLD")
 f:SetScript("OnEvent", function(self, event)
-	if event == "VARIABLES_LOADED" then
+	if event == "ADDON_LOADED" then
 		if not EpicUIDataPerChar then EpicUIDataPerChar = {} end
 		if not EpicUIDataPerChar.primary then EpicUIDataPerChar.primary = {} end
 		if not EpicUIDataPerChar.secondary then EpicUIDataPerChar.secondary = {} end
-	else
+	elseif event == "PLAYER_ENTERING_WORLD" then
+		emptybutton = MakeDropButton()
 		CreateButtonFrame()
-		InitButtons()	
+		InitButtons()
+	elseif event == "ACTIVE_TALENT_GROUP_CHANGED" then
+		InitButtons()
 	end
 end)
-	
-	
-	
-	
-	
