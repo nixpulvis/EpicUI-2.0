@@ -132,6 +132,19 @@ local function CreateButton(id, metatype)
 	end
 	SetDynamic(id, metatype)
 	
+	local function ShowTooltip(self)
+		GameTooltip:SetOwner(TukuiTooltipAnchor,"ANCHOR_TOPRIGHT", 0, 5); 
+		GameTooltip:SetClampedToScreen(true);
+		GameTooltip:ClearLines()
+		if self.metatype == "spell" then
+			GameTooltip:SetSpellByID(self.id)
+		elseif self.metatype == "item" then
+			GameTooltip:SetItemByID(self.id)
+		end
+		-- GameTooltip:_G["Set"..firstToUpper(self.metatype).."ByID"](self.id)
+		GameTooltip:Show() 
+	end
+	
 	local function Dropped(self)
 		if InCombatLockdown() then return end
 		local newID
@@ -168,28 +181,38 @@ local function CreateButton(id, metatype)
 		end
 	end
 	
+	local function OnEvent(self, event)
+		if event == "SPELL_UPDATE_COOLDOWN" then
+			SetCooldownTimer(self)
+		elseif event == "ACTIVE_TALENT_GROUP_CHANGED" then
+			Suicide(self)
+		end
+	end
 	
+	button:RegisterForDrag("LeftButton")	
 	button:RegisterEvent("PLAYER_ENTERING_WORLD")
+	button:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 	button:RegisterEvent("SPELL_UPDATE_COOLDOWN")
 	button:RegisterEvent("PET_BAR_UPDATE_COOLDOWN")
 	button:RegisterEvent("BAG_UPDATE_COOLDOWN")
-	button:SetScript("OnEvent", SetCooldownTimer)
-
-	button:RegisterForDrag("LeftButton")
+	button:SetScript("OnEvent", OnEvent)
 	button:SetScript("OnDragStart", Dragged)
 	button:SetScript("OnReceiveDrag", Dropped)
 	button:SetScript("OnEnter", DidEnter)
 	button:SetScript("OnMouseUp", Dropped)
+	button:SetScript("OnEnter", ShowTooltip)
+	button:SetScript("OnLeave", function(self) GameTooltip_Hide() end)
 	
 	return button
 end
 
+
+-- Drop Button
 local function MakeDropButton()
 	local button = CreateFrame("Button", nil, UIParent, "SecureActionButtonTemplate")
 	button:SetTemplate()
 	button:Size(BUTTON_SIZE+2, BUTTON_SIZE+4)
 	button:SetAlpha(0)
-	-- button:StyleButton()
 	
 	local function Dropped(self)
 		if InCombatLockdown() then return end
@@ -253,12 +276,12 @@ local function CreateButtonFrame()
 	end
 	UpdateFrame()
 
+	cabframe:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 	cabframe:RegisterEvent("ACTIONBAR_SHOWGRID")
 	cabframe:RegisterEvent("ACTIONBAR_HIDEGRID")
 	cabframe:SetScript("OnEvent", UpdateFrame)
 end
 
--- ONLY CALL ONCE!!!
 local function InitButtons()
 	for i, v in ipairs(ActiveTable()) do
 		b[i] = CreateButton(v[1], v[2])   --v[1] is the ID, v[2] is the metatype
@@ -269,15 +292,14 @@ end
 	
 local f = CreateFrame("FRAME")
 f:RegisterEvent("VARIABLES_LOADED")
+f:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 f:RegisterEvent("PLAYER_ENTERING_WORLD")
--- f:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 f:SetScript("OnEvent", function(self, event)
 	if event == "VARIABLES_LOADED" then
 		if not EpicUIDataPerChar then EpicUIDataPerChar = {} end
 		if not EpicUIDataPerChar.primary then EpicUIDataPerChar.primary = {} end
 		if not EpicUIDataPerChar.secondary then EpicUIDataPerChar.secondary = {} end
 	else
-		-- THE ONE CALL
 		CreateButtonFrame()
 		InitButtons()	
 	end
