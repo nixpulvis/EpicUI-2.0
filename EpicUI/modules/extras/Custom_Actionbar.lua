@@ -1,12 +1,9 @@
 local T, C, L = unpack(Tukui)
 -- DATA SOTRED AT: EpicUIDataPerChar.cabsecondary = {{id, tpye}, ...} AND EpicUIDataPerChar.cabprimary = {{id, tpye}, ...}
-local BUTTON_SIZE = 50
+local BUTTON_SIZE = C.actionbar.buttonsize + 6
 local b = {}
 local emptybutton
-
---- EXAMPLES
-local EpicUIDataPerChar = {}
-EpicUIDataPerChar.cabprimary = {{61295, "spell"}, {16188, "spell"}, {72898, "item"}}
+local cabframe
 
 function firstToUpper(str)
     return (str:gsub("^%l", string.upper))
@@ -14,16 +11,16 @@ end
 
 local function ActiveTable()
 	if GetActiveTalentGroup() == 1 then
-		return EpicUIDataPerChar.cabprimary
+		return _G["EpicUIDataPerChar"].primary
 	else
-		return EpicUIDataPerChar.cabsecondary
+		return _G["EpicUIDataPerChar"].secondary
 	end
 end
 
 -- ListRemove: table, number --> table
-local function ListRemove(oldID)
+local function ListRemove(id)
 	for i, v in ipairs(ActiveTable()) do
-		if oldID == v[1] then
+		if id == v[1] then
 			tremove(ActiveTable(), i)
 			break
 		end
@@ -32,7 +29,7 @@ end
 
 -- Addtolist: table, number, number --> table 
 local function ListInsert(oldID, oldType, newID, newType)
-	if not tContains(ActiveTable(), {oldID, oldType}) then 
+	if not oldID then 
 		tinsert(ActiveTable(), {newID, newType})
 	else
 		for i, v in ipairs(ActiveTable()) do
@@ -45,9 +42,9 @@ local function ListInsert(oldID, oldType, newID, newType)
 	end
 end
 
-local function ButtonRemove(oldID)
+local function ButtonRemove(id)
 	for i, v in ipairs(b) do
-		if oldID == v.id then
+		if id == v.id then
 			tremove(b, i)
 			break
 		end
@@ -56,28 +53,31 @@ end
 
 
 local function RepositionButtons()
-	local lastPos
+	local lastPos = nil
 	for i, v in ipairs(b) do
 		b[i]:ClearAllPoints()
 		if i == 1 then
-			b[i]:Point("CENTER", UIParent, "CENTER", 0, 0)
+			b[i]:Point("TOPLEFT", cabframe, "TOPLEFT", 2, -2)
 		else
 			b[i]:Point("LEFT", lastPos, "RIGHT", 3, 0)
 		end
 		lastPos = b[i]
 	end
 	emptybutton:ClearAllPoints()
-	emptybutton:Point("LEFT", lastPos, "RIGHT", 3, 0)
+	if lastPos then
+		emptybutton:Point("LEFT", lastPos, "RIGHT", 3, 0)
+	else
+		emptybutton:Point("TOPLEFT", cabframe, "TOPLEFT", 2, -2)
+	end
 end
 
 -- CreateButton: number, string
 local function CreateButton(id, metatype)
 	local button = CreateFrame("Button", nil, UIParent, "SecureActionButtonTemplate")
-	button:SetTemplate()
 	button:Size(BUTTON_SIZE, BUTTON_SIZE)
 	
 	button.tex = button:CreateTexture(nil, "BORDER")
-	button.tex:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+	button.tex:SetTexCoord(.08, .92, .08, .92)
 	button.tex:SetAllPoints()
 	
 	button.cooldown = CreateFrame("Cooldown", nil, button, "CooldownFrameTemplate")
@@ -86,6 +86,7 @@ local function CreateButton(id, metatype)
 	
 	local function Suicide(self)
 		ButtonRemove(self.id)
+		ListRemove(self.id)
 		self:Kill()
 		self.cooldown:Kill()
 		self = nil
@@ -146,9 +147,9 @@ local function CreateButton(id, metatype)
 		ClearCursor()
 		_G["Pickup"..firstToUpper(self.metatype)](self.id)
 		
-		SetDynamic(newID, newType)
 		self:SetButtonState("NORMAL", false)
 		ListInsert(self.id, self.metatype, newID, newType)
+		SetDynamic(newID, newType)
 	end
 	
 	local function Dragged(self)
@@ -186,7 +187,7 @@ end
 local function MakeDropButton()
 	local button = CreateFrame("Button", nil, UIParent, "SecureActionButtonTemplate")
 	button:SetTemplate()
-	button:Size(BUTTON_SIZE, BUTTON_SIZE)
+	button:Size(BUTTON_SIZE+2, BUTTON_SIZE+4)
 	button:SetAlpha(0)
 	-- button:StyleButton()
 	
@@ -201,7 +202,8 @@ local function MakeDropButton()
 		else
 			newID = info1
 		end
-		
+
+		ListInsert(self.id, self.metatype, newID, newType)
 		tinsert(b, CreateButton(newID, newType))
 		RepositionButtons()
 		ClearCursor()
@@ -226,6 +228,36 @@ local function MakeDropButton()
 	return button
 end
 
+local function CreateButtonFrame()
+	cabframe = CreateFrame("Frame", "EpicUICustomactionbar", UIParent)
+	cabframe:CreatePanel("Default", 1, BUTTON_SIZE+4, "TOPLEFT", TukuiPlayer, "BOTTOMLEFT", 0, -3)
+	cabframe:SetAlpha(0)
+	
+	local function UpdateFrame()
+		if #ActiveTable() > 0 then
+			cabframe:SetAlpha(1)
+			cabframe:Width((#ActiveTable()*(BUTTON_SIZE+3))+1)
+		else
+			cabframe:SetAlpha(0)
+		end
+		
+		local divider = {}
+		for i = 1, #ActiveTable()-1 do
+			divider[i] = CreateFrame("Frame", nil, cabframe)
+			if i == 1 then
+				divider[i]:CreatePanel("Default", 1, BUTTON_SIZE+4, "BOTTOMLEFT", cabframe, "BOTTOMLEFT", BUTTON_SIZE+3, 0)
+			else
+				divider[i]:CreatePanel("Default", 1, BUTTON_SIZE+4, "BOTTOMLEFT", divider[i-1], "BOTTOMLEFT", BUTTON_SIZE+3, 0)
+			end
+		end
+	end
+	UpdateFrame()
+
+	cabframe:RegisterEvent("ACTIONBAR_SHOWGRID")
+	cabframe:RegisterEvent("ACTIONBAR_HIDEGRID")
+	cabframe:SetScript("OnEvent", UpdateFrame)
+end
+
 -- ONLY CALL ONCE!!!
 local function InitButtons()
 	for i, v in ipairs(ActiveTable()) do
@@ -234,9 +266,22 @@ local function InitButtons()
 	emptybutton = MakeDropButton()
 	RepositionButtons()
 end
--- THE ONE CALL
-InitButtons()	
 	
+local f = CreateFrame("FRAME")
+f:RegisterEvent("VARIABLES_LOADED")
+f:RegisterEvent("PLAYER_ENTERING_WORLD")
+-- f:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+f:SetScript("OnEvent", function(self, event)
+	if event == "VARIABLES_LOADED" then
+		if not EpicUIDataPerChar then EpicUIDataPerChar = {} end
+		if not EpicUIDataPerChar.primary then EpicUIDataPerChar.primary = {} end
+		if not EpicUIDataPerChar.secondary then EpicUIDataPerChar.secondary = {} end
+	else
+		-- THE ONE CALL
+		CreateButtonFrame()
+		InitButtons()	
+	end
+end)
 	
 	
 	
