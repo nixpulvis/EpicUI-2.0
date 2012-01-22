@@ -2,12 +2,17 @@ local T, C, L = unpack(Tukui)
 -- DATA SOTRED AT: EpicUIDataPerChar.cabsecondary = {{id, tpye}, ...} AND EpicUIDataPerChar.cabprimary = {{id, tpye}, ...}
 local BUTTON_SIZE = 50
 local b = {}
+local emptybutton
 
 --- EXAMPLES
 local EpicUIDataPerChar = {}
 EpicUIDataPerChar.cabprimary = {{61295, "spell"}, {16188, "spell"}, {72898, "item"}}
 
-local function ActiveSpells()
+function firstToUpper(str)
+    return (str:gsub("^%l", string.upper))
+end
+
+local function ActiveTable()
 	if GetActiveTalentGroup() == 1 then
 		return EpicUIDataPerChar.cabprimary
 	else
@@ -17,10 +22,9 @@ end
 
 -- ListRemove: table, number --> table
 local function ListRemove(oldID)
-	for i, v in ipairs(ActiveSpells()) do
+	for i, v in ipairs(ActiveTable()) do
 		if oldID == v[1] then
-			tremove(ActiveSpells(), i)
-			tremove(b, i)
+			tremove(ActiveTable(), i)
 			break
 		end
 	end
@@ -28,21 +32,32 @@ end
 
 -- Addtolist: table, number, number --> table 
 local function ListInsert(oldID, oldType, newID, newType)
-	if not tContains(ActiveSpells(), {oldID, oldType}) then 
-		tinsert(ActiveSpells(), {newID, newType})
+	if not tContains(ActiveTable(), {oldID, oldType}) then 
+		tinsert(ActiveTable(), {newID, newType})
+	else
+		for i, v in ipairs(ActiveTable()) do
+			if oldID == v[1] then
+				ListRemove(oldID)
+				tinsert(ActiveTable(), i, {newID, newType})
+				break
+			end
+		end
 	end
-	for i, v in ipairs(ActiveSpells()) do
-		if oldID == v[1] then
-			ListRemove(oldID)
-			tinsert(ActiveSpells(), i, {newID, newType})
+end
+
+local function ButtonRemove(oldID)
+	for i, v in ipairs(b) do
+		if oldID == v.id then
+			tremove(b, i)
 			break
 		end
 	end
 end
 
+
 local function RepositionButtons()
 	local lastPos
-	for i, v in ipairs(ActiveSpells()) do
+	for i, v in ipairs(b) do
 		b[i]:ClearAllPoints()
 		if i == 1 then
 			b[i]:Point("CENTER", UIParent, "CENTER", 0, 0)
@@ -51,11 +66,13 @@ local function RepositionButtons()
 		end
 		lastPos = b[i]
 	end
+	emptybutton:ClearAllPoints()
+	emptybutton:Point("LEFT", lastPos, "RIGHT", 3, 0)
 end
 
 -- CreateButton: number, string
-local function CreateButton(id, metatype)	
-	local button = CreateFrame("Button", "CustomBarButton"..id, UIParent, "SecureActionButtonTemplate")
+local function CreateButton(id, metatype)
+	local button = CreateFrame("Button", nil, UIParent, "SecureActionButtonTemplate")
 	button:SetTemplate()
 	button:Size(BUTTON_SIZE, BUTTON_SIZE)
 	
@@ -63,11 +80,12 @@ local function CreateButton(id, metatype)
 	button.tex:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 	button.tex:SetAllPoints()
 	
-	button.cooldown = CreateFrame("Cooldown", "$parentCD", button, "CooldownFrameTemplate")
+	button.cooldown = CreateFrame("Cooldown", nil, button, "CooldownFrameTemplate")
 	button.cooldown:SetAllPoints(button.tex)				
-	button:StyleButton()
+	-- button:StyleButton() --FIX ME
 	
 	local function Suicide(self)
+		ButtonRemove(self.id)
 		self:Kill()
 		self.cooldown:Kill()
 		self = nil
@@ -114,28 +132,41 @@ local function CreateButton(id, metatype)
 	SetDynamic(id, metatype)
 	
 	local function Dropped(self)
+		if InCombatLockdown() then return end
 		local newID
 		local newType, info1, info2 = GetCursorInfo()
+		if not newType then return end
+		
 		if newType == "spell" then
 			_,newID = GetSpellBookItemInfo(info1, info2)
 		else
 			newID = info1
 		end
-		SetDynamic(newID, newType)
 		
-		
-		ListInsert(self.id, self.metatype, newID, newType)
 		ClearCursor()
+		_G["Pickup"..firstToUpper(self.metatype)](self.id)
+		
+		SetDynamic(newID, newType)
+		self:SetButtonState("NORMAL", false)
+		ListInsert(self.id, self.metatype, newID, newType)
 	end
 	
 	local function Dragged(self)
-		local id = self.id
-		PickupSpell(id)
+		if InCombatLockdown() then return end
+		_G["Pickup"..firstToUpper(self.metatype)](self.id)
 		
-		ListRemove(self.id)
-		RepositionButtons()
 		Suicide(self)
+		RepositionButtons()
 	end
+	
+	local function DidEnter(self)
+		if GetCursorInfo() then
+			self:SetButtonState("NORMAL", true)
+		else
+			self:SetButtonState("NORMAL", false)
+		end
+	end
+	
 	
 	button:RegisterEvent("PLAYER_ENTERING_WORLD")
 	button:RegisterEvent("SPELL_UPDATE_COOLDOWN")
@@ -146,20 +177,61 @@ local function CreateButton(id, metatype)
 	button:RegisterForDrag("LeftButton")
 	button:SetScript("OnDragStart", Dragged)
 	button:SetScript("OnReceiveDrag", Dropped)
-	-- button:SetScript("PreClick", Dropped)
+	button:SetScript("OnEnter", DidEnter)
+	button:SetScript("OnMouseUp", Dropped)
 	
 	return button
 end
 
 local function MakeDropButton()
+	local button = CreateFrame("Button", nil, UIParent, "SecureActionButtonTemplate")
+	button:SetTemplate()
+	button:Size(BUTTON_SIZE, BUTTON_SIZE)
+	button:SetAlpha(0)
+	-- button:StyleButton()
 	
+	local function Dropped(self)
+		if InCombatLockdown() then return end
+		local newID
+		local newType, info1, info2 = GetCursorInfo()
+		if not newType then return end
+		
+		if newType == "spell" then
+			_,newID = GetSpellBookItemInfo(info1, info2)
+		else
+			newID = info1
+		end
+		
+		tinsert(b, CreateButton(newID, newType))
+		RepositionButtons()
+		ClearCursor()
+	end
+	
+	local function Visibility(self, event)
+		if event == "ACTIONBAR_SHOWGRID" then
+			if InCombatLockdown() then return end
+			self:SetAlpha(1)
+		elseif event == "ACTIONBAR_HIDEGRID" then
+			self:SetAlpha(0)
+		end
+	end
+	
+	button:RegisterEvent("ACTIONBAR_SHOWGRID")
+	button:RegisterEvent("ACTIONBAR_HIDEGRID")
+	button:RegisterForDrag("LeftButton")
+	button:SetScript("OnReceiveDrag", Dropped)
+	button:SetScript("OnMouseUp", Dropped)
+	button:SetScript("OnEvent", Visibility)
+
+	return button
 end
 
 -- ONLY CALL ONCE!!!
 local function InitButtons()
-	for i, v in ipairs(ActiveSpells()) do
+	for i, v in ipairs(ActiveTable()) do
 		b[i] = CreateButton(v[1], v[2])   --v[1] is the ID, v[2] is the metatype
 	end
+	emptybutton = MakeDropButton()
 	RepositionButtons()
 end
 -- THE ONE CALL
