@@ -283,6 +283,7 @@ local function MakeDropButton()
 end
 
 local function InitButtons()
+	T.KillTableofFrames(b)
 	for i, v in ipairs(ActiveTable()) do
 		b[i] = CreateButton(v[1], v[2])   --v[1] is the ID, v[2] is the metatype
 	end
