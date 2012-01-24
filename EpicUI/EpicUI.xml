@@ -4,8 +4,7 @@
 	<Script file="core\functions.lua"/>
 	<Script file="core\install.lua"/>
 	
-	<Script file="modules\extras\Custom_Actionbar.lua"/>	
-	<Script file="modules\extras\Epic_Trinkets.lua"/>	
+	<Script file="modules\extras\Custom_Actionbar.lua"/>
 	<Script file="modules\extras\raidbuffReminder.lua"/>		
 	<Script file="modules\extras\spechelper.lua"/>
 	<Script file="modules\extras\hoveroverdot.lua"/>

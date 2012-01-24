@@ -13,7 +13,6 @@ T.AllowFrameMoving = {
 	TukuiGMFrameAnchor,
 	TukuiVehicleAnchor,
 	TukuiExtraActionBarFrameHolder,
-	TukuiTrinketBar,
 }
 
 -- used to exec various code if we enable or disable moving
@@ -108,14 +107,6 @@ local function exec(self, enable)
 			TukuiShapeShiftHolder:SetAlpha(1)
 		else
 			TukuiShapeShiftHolder:SetAlpha(0)
-		end
-	end
-		
-	if self == TukuiTrinketBar then
-		if enable then
-			TukuiTrinketBarAnchor:SetAlpha(1)
-		else
-			TukuiTrinketBarAnchor:SetAlpha(0)
 		end
 	end
 end
