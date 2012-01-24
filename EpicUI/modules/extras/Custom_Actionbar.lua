@@ -104,6 +104,25 @@ local function RepositionButtons()
 	UpdateBGFrame()
 end
 
+--Style the buttons
+local function StyleButton(b)
+	local hover = b:CreateTexture("frame", nil, self) -- hover
+	hover:SetTexture(1,1,1,0.3)
+	hover:SetHeight(b:GetHeight())
+	hover:SetWidth(b:GetWidth())
+	hover:Point("TOPLEFT",b,0,0)
+	hover:Point("BOTTOMRIGHT",b,0,0)
+	b:SetHighlightTexture(hover)
+
+	local pushed = b:CreateTexture("frame", nil, self) -- pushed
+	pushed:SetTexture(0.9,0.8,0.1,0.3)
+	pushed:SetHeight(b:GetHeight())
+	pushed:SetWidth(b:GetWidth())
+	pushed:Point("TOPLEFT",b,0,0)
+	pushed:Point("BOTTOMRIGHT",b,0,0)
+	b:SetPushedTexture(pushed)
+end
+
 -- CreateButton: number, string
 local function CreateButton(id, metatype)
 	local button = CreateFrame("Button", nil, UIParent, "SecureActionButtonTemplate")
@@ -115,7 +134,7 @@ local function CreateButton(id, metatype)
 	
 	button.cooldown = CreateFrame("Cooldown", nil, button, "CooldownFrameTemplate")
 	button.cooldown:SetAllPoints(button.tex)				
-	-- button:StyleButton() --FIX ME
+	StyleButton(button)
 	
 	local function Suicide(self)
 		ButtonRemove(self.id)
