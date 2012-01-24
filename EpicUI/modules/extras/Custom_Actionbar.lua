@@ -67,17 +67,17 @@ local function UpdateBGFrame()
 end
 
 local function ManageDividers()
-		if #dividers < #b then
-			tinsert(dividers,  CreateFrame("Frame", nil, cabframe))
-			if #dividers == 1 then
-				dividers[#dividers]:CreatePanel("Default", 1, BUTTON_SIZE+4, "BOTTOMLEFT", cabframe, "BOTTOMLEFT", BUTTON_SIZE+3, 0)
-			else
-				dividers[#dividers]:CreatePanel("Default", 1, BUTTON_SIZE+4, "BOTTOMLEFT", dividers[#dividers-1], "BOTTOMLEFT", BUTTON_SIZE+3, 0)
-			end
-		elseif #dividers > #b then
-			dividers[#dividers]:Kill()
-			tremove(dividers, #dividers)
+	if #dividers < #b then
+		tinsert(dividers,  CreateFrame("Frame", nil, cabframe))
+		if #dividers == 1 then
+			dividers[#dividers]:CreatePanel("Default", 1, BUTTON_SIZE+4, "BOTTOMLEFT", cabframe, "BOTTOMLEFT", BUTTON_SIZE+3, 0)
+		else
+			dividers[#dividers]:CreatePanel("Default", 1, BUTTON_SIZE+4, "BOTTOMLEFT", dividers[#dividers-1], "BOTTOMLEFT", BUTTON_SIZE+3, 0)
 		end
+	elseif #dividers > #b then
+		dividers[#dividers]:Kill()
+		tremove(dividers, #dividers)
+	end
 end
 
 local function RepositionButtons()
@@ -105,22 +105,29 @@ local function RepositionButtons()
 end
 
 --Style the buttons
-local function StyleButton(b)
+local function StyleButton(b, n)
 	local hover = b:CreateTexture("frame", nil, self) -- hover
 	hover:SetTexture(1,1,1,0.3)
 	hover:SetHeight(b:GetHeight())
 	hover:SetWidth(b:GetWidth())
-	hover:Point("TOPLEFT",b,0,0)
-	hover:Point("BOTTOMRIGHT",b,0,0)
+	hover:Point("TOPLEFT",b,2,-2)
+	hover:Point("BOTTOMRIGHT",b,-2,2)
 	b:SetHighlightTexture(hover)
 
 	local pushed = b:CreateTexture("frame", nil, self) -- pushed
 	pushed:SetTexture(0.9,0.8,0.1,0.3)
 	pushed:SetHeight(b:GetHeight())
 	pushed:SetWidth(b:GetWidth())
-	pushed:Point("TOPLEFT",b,0,0)
-	pushed:Point("BOTTOMRIGHT",b,0,0)
+	pushed:Point("TOPLEFT",b,2,-2)
+	pushed:Point("BOTTOMRIGHT",b,-2,2)
 	b:SetPushedTexture(pushed)
+	
+	if n then
+		pushed:ClearAllPoints()
+		pushed:SetAllPoints()
+		hover:ClearAllPoints()
+		hover:SetAllPoints()		
+	end
 end
 
 -- CreateButton: number, string
@@ -134,7 +141,7 @@ local function CreateButton(id, metatype)
 	
 	button.cooldown = CreateFrame("Cooldown", nil, button, "CooldownFrameTemplate")
 	button.cooldown:SetAllPoints(button.tex)				
-	StyleButton(button)
+	StyleButton(button, true)
 	
 	local function Suicide(self)
 		ButtonRemove(self.id)
@@ -191,7 +198,6 @@ local function CreateButton(id, metatype)
 		elseif self.metatype == "item" then
 			GameTooltip:SetItemByID(self.id)
 		end
-		-- GameTooltip:_G["Set"..firstToUpper(self.metatype).."ByID"](self.id)
 		GameTooltip:Show() 
 	end
 	
@@ -263,6 +269,7 @@ local function MakeDropButton()
 	button:SetTemplate()
 	button:Size(BUTTON_SIZE+4, BUTTON_SIZE+4)
 	button:SetAlpha(0)
+	StyleButton(button)
 	
 	local function Dropped(self)
 		if InCombatLockdown() then return end
