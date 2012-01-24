@@ -6,6 +6,13 @@ local T, C, L = unpack(Tukui)
 --Killing functions I don't want
 T.PostNamePosition = T.dummy
 
+T.KillTableofFrames = function(t)
+	for i, v in pairs(t) do
+		v:Kill()
+		v = nil
+	end
+end
+
  T.SkinCloseButton = function(f, point)
 	if point then
 		f:Point("TOPRIGHT", point, "TOPRIGHT", 2, 2)

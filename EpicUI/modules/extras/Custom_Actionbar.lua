@@ -4,6 +4,7 @@ local BUTTON_SIZE = C.actionbar.buttonsize + 6
 local b = {} 			-- buttons actually stored here
 local emptybutton 		-- this is the drop buttoon
 local cabframe 			-- background of the actionbar
+local dividers = {}
 
 function firstToUpper(str)
     return (str:gsub("^%l", string.upper))
@@ -51,6 +52,33 @@ local function ButtonRemove(id)
 	end
 end
 
+-- Parent BG frame
+cabframe = CreateFrame("Frame", "EpicUICustomactionbar", UIParent)
+cabframe:CreatePanel("Default", 1, BUTTON_SIZE+4, "TOPLEFT", TukuiPlayer, "BOTTOMLEFT", 0, -6)
+cabframe:SetAlpha(0)
+
+local function UpdateBGFrame()
+	if #ActiveTable() > 0 then
+		cabframe:SetAlpha(1)
+		cabframe:Width((#ActiveTable()*(BUTTON_SIZE+3))+1)
+	else
+		cabframe:SetAlpha(0)
+	end
+end
+
+local function ManageDividers()
+		if #dividers < #b then
+			tinsert(dividers,  CreateFrame("Frame", nil, cabframe))
+			if #dividers == 1 then
+				dividers[#dividers]:CreatePanel("Default", 1, BUTTON_SIZE+4, "BOTTOMLEFT", cabframe, "BOTTOMLEFT", BUTTON_SIZE+3, 0)
+			else
+				dividers[#dividers]:CreatePanel("Default", 1, BUTTON_SIZE+4, "BOTTOMLEFT", dividers[#dividers-1], "BOTTOMLEFT", BUTTON_SIZE+3, 0)
+			end
+		elseif #dividers > #b then
+			dividers[#dividers]:Kill()
+			tremove(dividers, #dividers)
+		end
+end
 
 local function RepositionButtons()
 	local lastPos = nil
@@ -60,15 +88,20 @@ local function RepositionButtons()
 			b[i]:Point("TOPLEFT", cabframe, "TOPLEFT", 2, -2)
 		else
 			b[i]:Point("LEFT", lastPos, "RIGHT", 3, 0)
+			
 		end
+		ManageDividers()
 		lastPos = b[i]
 	end
 	emptybutton:ClearAllPoints()
 	if lastPos then
 		emptybutton:Point("LEFT", lastPos, "RIGHT", 3, 0)
 	else
-		emptybutton:Point("TOPLEFT", cabframe, "TOPLEFT", 2, -2)
+		emptybutton:Point("TOPLEFT", cabframe, "TOPLEFT", 0, 0)
 	end
+	lastPos = nil
+	
+	UpdateBGFrame()
 end
 
 -- CreateButton: number, string
@@ -151,7 +184,7 @@ local function CreateButton(id, metatype)
 		
 		if newType == "spell" then
 			_,newID = GetSpellBookItemInfo(info1, info2)
-		else
+		elseif newType == "item" then
 			newID = info1
 		end
 		
@@ -205,12 +238,11 @@ local function CreateButton(id, metatype)
 	return button
 end
 
-
 -- Drop Button
 local function MakeDropButton()
 	local button = CreateFrame("Button", nil, UIParent, "SecureActionButtonTemplate")
 	button:SetTemplate()
-	button:Size(BUTTON_SIZE+2, BUTTON_SIZE+4)
+	button:Size(BUTTON_SIZE+4, BUTTON_SIZE+4)
 	button:SetAlpha(0)
 	
 	local function Dropped(self)
@@ -221,7 +253,7 @@ local function MakeDropButton()
 		
 		if newType == "spell" then
 			_,newID = GetSpellBookItemInfo(info1, info2)
-		else
+		elseif newType == "item" then
 			newID = info1
 		end
 
@@ -250,42 +282,6 @@ local function MakeDropButton()
 	return button
 end
 
-local function CreateButtonFrame()
-	cabframe = CreateFrame("Frame", "EpicUICustomactionbar", UIParent)
-	cabframe:CreatePanel("Default", 1, BUTTON_SIZE+4, "TOPLEFT", TukuiPlayer, "BOTTOMLEFT", 0, -6)
-	cabframe:SetAlpha(0)
-	
-	local function UpdateFrame()
-		if #ActiveTable() > 0 then
-			cabframe:SetAlpha(1)
-			cabframe:Width((#ActiveTable()*(BUTTON_SIZE+3))+1)
-		else
-			cabframe:SetAlpha(0)
-		end
-		
-		local divider = {}
-		for i = 1, #ActiveTable()-1 do
-			divider[i] = CreateFrame("Frame", nil, cabframe)
-			if i == 1 then
-				divider[i]:CreatePanel("Default", 1, BUTTON_SIZE+4, "BOTTOMLEFT", cabframe, "BOTTOMLEFT", BUTTON_SIZE+3, 0)
-			else
-				divider[i]:CreatePanel("Default", 1, BUTTON_SIZE+4, "BOTTOMLEFT", divider[i-1], "BOTTOMLEFT", BUTTON_SIZE+3, 0)
-			end
-		end
-		
-		if divider[#ActiveTable()] then
-			divider[#ActiveTable()]:Kill()
-			divider[#ActiveTable()] = nil
-		end
-	end
-	UpdateFrame()
-
-	cabframe:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
-	cabframe:RegisterEvent("ACTIONBAR_SHOWGRID")
-	cabframe:RegisterEvent("ACTIONBAR_HIDEGRID")
-	cabframe:SetScript("OnEvent", UpdateFrame)
-end
-
 local function InitButtons()
 	for i, v in ipairs(ActiveTable()) do
 		b[i] = CreateButton(v[1], v[2])   --v[1] is the ID, v[2] is the metatype
@@ -304,9 +300,19 @@ f:SetScript("OnEvent", function(self, event)
 		if not EpicUIDataPerChar.secondary then EpicUIDataPerChar.secondary = {} end
 	elseif event == "PLAYER_ENTERING_WORLD" then
 		emptybutton = MakeDropButton()
-		CreateButtonFrame()
 		InitButtons()
 	elseif event == "ACTIVE_TALENT_GROUP_CHANGED" then
-		InitButtons()
+		T.KillTableofFrames(dividers)
+		T.Delay(.1, InitButtons)
 	end
 end)
+
+-- Clear Data
+SLASH_CLEARCAB1 = "/clearcab"
+SlashCmdList.CLEARCAB = function()
+	_G["EpicUIDataPerChar"].primary = nil
+	_G["EpicUIDataPerChar"].secondary = nil
+	_G["EpicUIDataPerChar"].cabprimary = nil
+	_G["EpicUIDataPerChar"].cabsecondary = nil
+	ReloadUI()
+end
