@@ -458,12 +458,10 @@ local function AnotherOnAuraChange(self, event, arg1, unit)
 			_G[key.."Frame"].spell = v
 			if UnitAura("player", spellname) then
 				_G[key.."Frame"]:SetAlpha(1)
-				-- _G[key.."Frame"].t:SetDesaturated(nil)
 				_G[key.."Frame"].t:SetTexture(select(3, GetSpellInfo(v)))
 				break
 			else
 				_G[key.."Frame"]:SetAlpha(0.2)
-				-- _G[key.."Frame"].t:SetDesaturated(1)
 				_G[key.."Frame"].t:SetTexture(select(3, GetSpellInfo(v)))
 			end
 		end
@@ -471,8 +469,10 @@ local function AnotherOnAuraChange(self, event, arg1, unit)
 end
 
 local raidbuffsummury = CreateFrame("Frame", "RaidBuffSummery", UIParent)
-raidbuffsummury:CreatePanel("Default", 435, 425, "TOP", raidbuff_reminder, "BOTTOM", 0, -3)
--- raidbuffsummury:SetFrameStrata("High")
+raidbuffsummury:SetFrameStrata("HIGH")
+raidbuffsummury:SetTemplate()
+raidbuffsummury:Size(435, 425)
+raidbuffsummury:Point("TOP", raidbuff_reminder, "BOTTOM", 0, -3)
 raidbuffsummury:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 raidbuffsummury:RegisterEvent("UNIT_INVENTORY_CHANGED")
 raidbuffsummury:RegisterEvent("UNIT_AURA")
@@ -505,12 +505,14 @@ end
 
 local function CreateBuffArea(bufftype, relativeTo, column)
 	local bigButton = CreateFrame("Frame", bufftype.."Frame", raidbuffsummury)
+	bigButton:SetTemplate()
+	bigButton:Size(40, 40)
 	if column == 1 then
-		bigButton:CreatePanel("Default", 40, 40, "TOPLEFT", raidbuffsummury, "TOPLEFT", 14, -14)
+		bigButton:Point("TOPLEFT", raidbuffsummury, "TOPLEFT", 14, -14)
 	elseif column == 2 then
-		bigButton:CreatePanel("Default", 40, 40, "TOPLEFT", raidbuffsummury, "TOPLEFT", 250, -14)
+		bigButton:Point("TOPLEFT", raidbuffsummury, "TOPLEFT", 250, -14)
 	else
-		bigButton:CreatePanel("Default", 40, 40, "TOPLEFT", relativeTo, "BOTTOMLEFT", 0, -16)
+		bigButton:Point("TOPLEFT", relativeTo, "BOTTOMLEFT", 0, -16)
 	end
 	bigButton.t = bigButton:CreateTexture(bufftype..".t", "OVERLAY")
 	bigButton.t:SetTexCoord(0.1, 0.9, 0.1, 0.9)
@@ -520,10 +522,12 @@ local function CreateBuffArea(bufftype, relativeTo, column)
 	local littlebutton = {}
 	for i, v in pairs(AllBuffs[bufftype]) do
 		littlebutton[i] = CreateFrame("Frame", bufftype.."mini"..i, raidbuffsummury)		
+		littlebutton[i]:SetTemplate()
+		littlebutton[i]:Size(20, 20)
 		if i == 1 then
-			littlebutton[i]:CreatePanel("Default", 20, 20, "BOTTOMLEFT", bigButton, "BOTTOMRIGHT", 3, 0)
+			littlebutton[i]:Point("BOTTOMLEFT", bigButton, "BOTTOMRIGHT", 3, 0)
 		else
-			littlebutton[i]:CreatePanel("Default", 20, 20, "LEFT", littlebutton[i-1], "RIGHT", 3, 0)
+			littlebutton[i]:Point("LEFT", littlebutton[i-1], "RIGHT", 3, 0)
 		end
 		littlebutton[i].t = littlebutton[i]:CreateTexture(nil, "OVERLAY")
 		littlebutton[i].t:SetTexCoord(0.1, 0.9, 0.1, 0.9)
@@ -566,6 +570,8 @@ raidbuffsummury:Hide()
 
 local raidbuff_toggle = CreateFrame("Frame", "RaidBuffToggle", raidbuff_reminder)
 raidbuff_toggle:CreatePanel("Default", raidbuff_reminder:GetWidth(), 18, "TOP", raidbuff_reminder, "BOTTOM", 0, -1)
+raidbuff_toggle:SetFrameStrata("HIGH")
+
 raidbuff_toggle.text = raidbuff_toggle:CreateFontString(nil, "OVERLAY")
 raidbuff_toggle.text:SetPoint("CENTER")
 raidbuff_toggle.text:SetFont(C.media.font, 12)
