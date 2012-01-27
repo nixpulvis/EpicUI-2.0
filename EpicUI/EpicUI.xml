@@ -51,4 +51,5 @@
 	<Script file="core\move.lua"/>
 	
 	<Script file="modules\skins\balancepowertracker.lua"/>
+	<Script file="modules\skins\numeration.lua"/>
 </Ui>

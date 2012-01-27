@@ -5,6 +5,7 @@
 ## Author: Epicgrim
 ## SavedVariablesPerCharacter: EpicUIDataPerChar
 ## RequiredDeps: EpicUI_Config, Tukui
+## OptionalDeps: Numeration, BalancePowerTracker
 ## X-oUF: oUFTukui
 
 EpicUI.xml

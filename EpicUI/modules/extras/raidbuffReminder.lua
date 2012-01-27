@@ -589,6 +589,21 @@ local function ToggleRaidBuffs()
 		raidbuff_toggle:SetScript("OnLeave", nil)
 	end
 end
+
+raidbuff_toggle:RegisterEvent("PLAYER_REGEN_DISABLED")
+raidbuff_toggle:RegisterEvent("PLAYER_REGEN_ENABLED")
 raidbuff_toggle:SetScript("OnEnter", function(self) self:SetAlpha(1) end)
 raidbuff_toggle:SetScript("OnLeave", function(self) self:SetAlpha(0) end)
 raidbuff_toggle:SetScript("OnMouseDown", ToggleRaidBuffs)
+raidbuff_toggle:SetScript("OnEvent", function(self, event)
+	if event == "PLAYER_REGEN_DISABLED" then
+		self:EnableMouse(false)
+		self:SetAlpha(0)
+	elseif event == "PLAYER_REGEN_ENABLED" then
+		self:EnableMouse(true)
+		self:SetAlpha(1)
+	end
+end)
+
+
+
