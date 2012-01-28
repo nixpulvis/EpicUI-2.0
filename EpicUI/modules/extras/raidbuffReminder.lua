@@ -624,8 +624,8 @@ end
 
 raidbuff_toggle:RegisterEvent("PLAYER_REGEN_DISABLED")
 raidbuff_toggle:RegisterEvent("PLAYER_REGEN_ENABLED")
-raidbuff_toggle:SetScript("OnEnter", function(self) self:SetAlpha(1) end)
-raidbuff_toggle:SetScript("OnLeave", function(self) self:SetAlpha(0) end)
+raidbuff_toggle:HookScript("OnEnter", function(self) self:SetAlpha(1) end)
+raidbuff_toggle:HookScript("OnLeave", function(self) self:SetAlpha(0) end)
 raidbuff_toggle:SetScript("OnMouseDown", ToggleRaidBuffs)
 raidbuff_toggle:SetScript("OnEvent", function(self, event)
 	if event == "PLAYER_REGEN_DISABLED" then

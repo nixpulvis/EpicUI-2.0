@@ -3,28 +3,11 @@ local T, C, L = unpack(Tukui)
 -- EPICUI FUNCTIONS --
 ----------------------
 
---Killing functions I don't want
-T.PostNamePosition = T.dummy
-
 T.KillTableofFrames = function(t)
 	for i, v in pairs(t) do
 		v:Kill()
 		v = nil
 	end
-end
-
- T.SkinCloseButton = function(f, point)
-	if point then
-		f:Point("TOPRIGHT", point, "TOPRIGHT", 2, 2)
-	end
-	
-	f:SetNormalTexture("")
-	f:SetPushedTexture("")
-	f:SetHighlightTexture("")
-	f.t = f:CreateFontString(nil, "OVERLAY")
-	f.t:SetFont(C.media.pixelfont, 12, "MONOCHROME")
-	f.t:SetPoint("CENTER", 0, 0)
-	f.t:SetText("X")
 end
 
 -- Databar fuctions
@@ -43,6 +26,26 @@ T.DataBarTooltipAnchor = function(barNum)
 	end
 	
 	return xoff, yoff
+end
+
+----------------------------------
+-- Overwriting Tukui Functions --
+----------------------------------
+--Killing functions I don't want
+T.PostNamePosition = T.dummy
+
+ T.SkinCloseButton = function(f, point)
+	if point then
+		f:Point("TOPRIGHT", point, "TOPRIGHT", 2, 2)
+	end
+	
+	f:SetNormalTexture("")
+	f:SetPushedTexture("")
+	f:SetHighlightTexture("")
+	f.t = f:CreateFontString(nil, "OVERLAY")
+	f.t:SetFont(C.media.pixelfont, 12, "MONOCHROME")
+	f.t:SetPoint("CENTER", 0, 0)
+	f.t:SetText("X")
 end
 
 -- for UFs mostly

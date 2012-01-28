@@ -1,6 +1,13 @@
 local T, C, L = unpack(Tukui)
 
 --API Functions
+
+-- Call ONLY HookScript on "OnEnter" and "OnLeave" for the frame after this.
+local function SetHoveroverHighlight(f)
+	f:HookScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(C.general.highlighted)) end)
+	f:HookScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.general.bordercolor)) end)
+end
+
 local function CreateBorder(f, i, o)
 	if i then
 		if f.iborder then return end
@@ -89,6 +96,7 @@ end
 
 local function addapi(object)
 	local mt = getmetatable(object).__index
+	if not object.SetHoveroverHighlight then mt.SetHoveroverHighlight = SetHoveroverHighlight end
 	if not object.CreateBorder then mt.CreateBorder = CreateBorder end
 	if not object.SetVerticalText then mt.SetVerticalText = SetVerticalText end
 end
