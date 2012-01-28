@@ -469,5 +469,3 @@ glyphs.t:SetText("Glyphs")
 glyphs:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(C.general.highlighted)) end)
 glyphs:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.general.bordercolor)) end)
 glyphs:SetScript("OnClick", function(self) TogglePanel(glyphpanel) end)
-
-

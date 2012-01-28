@@ -176,10 +176,12 @@ local function OnAuraChange(self, event, arg1, unit)
 			if UnitAura("player", spellname) then
 				FlaskFrame.t:SetTexture(select(3, GetSpellInfo(flaskbuffs)))
 				FlaskFrame:SetAlpha(1)
+				FlaskFrame.id = flaskbuffs
 				break
 			else
 				CheckElixir()
 			end
+			FlaskFrame.id = flaskbuffs
 		end
 	end
 	
@@ -190,10 +192,12 @@ local function OnAuraChange(self, event, arg1, unit)
 			if UnitAura("player", spellname) then
 				FoodFrame:SetAlpha(1)
 				FoodFrame.t:SetTexture(select(3, GetSpellInfo(foodbuffs)))
+				FoodFrame.id = foodbuffs
 				break
 			else
 				FoodFrame:SetAlpha(0.2)
 			end
+			FoodFrame.id = foodbuffs
 		end
 	end
 	
@@ -202,11 +206,13 @@ local function OnAuraChange(self, event, arg1, unit)
 		if UnitAura("player", spellname) then
 			Spell3Frame:SetAlpha(1)
 			Spell3Frame.t:SetTexture(select(3, GetSpellInfo(Spell3Buff)))
+			Spell3Frame.id = Spell3Buff
 			break
 		else
 			Spell3Frame:SetAlpha(0.2)
 			Spell3Frame.t:SetTexture(select(3, GetSpellInfo(Spell3Buff)))
 		end
+		Spell3Frame.id = Spell3Buff
 	end
 	
 	for i, Spell4Buff in pairs(Spell4Buff) do
@@ -214,10 +220,12 @@ local function OnAuraChange(self, event, arg1, unit)
 		if UnitAura("player", spellname) then
 			Spell4Frame:SetAlpha(1)
 			Spell4Frame.t:SetTexture(select(3, GetSpellInfo(Spell4Buff)))
+			Spell4Frame.id = Spell4Buff
 			break
 		else
 			Spell4Frame:SetAlpha(0.2)
 			Spell4Frame.t:SetTexture(select(3, GetSpellInfo(Spell4Buff)))
+			Spell4Frame.id = Spell4Buff
 		end
 	end
 	
@@ -226,11 +234,13 @@ local function OnAuraChange(self, event, arg1, unit)
 		if UnitAura("player", spellname) then
 			Spell5Frame:SetAlpha(1)
 			Spell5Frame.t:SetTexture(select(3, GetSpellInfo(Spell5Buff)))
+			Spell5Frame.id = Spell5Buff
 			break
 		else
 			Spell5Frame:SetAlpha(0.2)
 			Spell5Frame.t:SetTexture(select(3, GetSpellInfo(Spell5Buff)))
 		end
+		Spell5Frame.id = Spell5Buff
 	end	
 
 	for i, Spell6Buff in pairs(Spell6Buff) do
@@ -238,11 +248,13 @@ local function OnAuraChange(self, event, arg1, unit)
 		if UnitAura("player", spellname) then
 			Spell6Frame:SetAlpha(1)
 			Spell6Frame.t:SetTexture(select(3, GetSpellInfo(Spell6Buff)))
+			Spell6Frame.id = Spell6Buff
 			break
 		else
 			Spell6Frame:SetAlpha(0.2)
 			Spell6Frame.t:SetTexture(select(3, GetSpellInfo(Spell6Buff)))
 		end
+		Spell6Frame.id = Spell6Buff
 	end	
 	
 	local spellname = select(1, GetSpellInfo(specialbuff))
@@ -253,6 +265,7 @@ local function OnAuraChange(self, event, arg1, unit)
 		SpecialBuffFrame:SetAlpha(0.2)
 		SpecialBuffFrame.t:SetTexture(select(3, GetSpellInfo(specialbuff)))
 	end
+	SpecialBuffFrame.id = specialbuff
 end
 
 local fsize = 164
@@ -287,6 +300,19 @@ local function CreateButton(name, relativeTo, firstbutton)
 	button.t:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	button.t:Point("TOPLEFT", 2, -2)
 	button.t:Point("BOTTOMRIGHT", -2, 2)
+	
+	local function SetupTooltip(self)
+		GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT", 0, 0)
+		
+		GameTooltip:SetSpellByID(button.id)
+		if name == "SpecialBuffFrame" then
+			GameTooltip:AddLine(" ")
+			GameTooltip:AddLine("Set the SpellID in the tukui config (/tukui) under epicui", 1,1,1)
+		end
+		GameTooltip:Show()
+	end
+	button:SetScript("OnEnter", SetupTooltip)
+	button:SetScript("OnLeave", GameTooltip_Hide)
 end
 
 --Create Buttons
@@ -610,6 +636,3 @@ raidbuff_toggle:SetScript("OnEvent", function(self, event)
 		self:SetAlpha(1)
 	end
 end)
-
-
-
