@@ -212,6 +212,14 @@ Stat:SetScript("OnEnter", function(self)
 			connected = v.connected
 			status = v.status
 			class = v.class
+			
+			if status == 1 then
+				status = "|cffff0000[AFK]|r"
+			elseif status == 2 then
+				status = "|cffff0000[Busy]|r"
+			else
+				status = ""
+			end
 
 			if connected then
 				if GetRealZoneText() == zone then zone_r, zone_g, zone_b = 0.3, 1.0, 0.3 else zone_r, zone_g, zone_b = 0.65, 0.65, 0.65 end
