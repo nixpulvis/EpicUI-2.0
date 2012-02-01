@@ -633,6 +633,5 @@ raidbuff_toggle:SetScript("OnEvent", function(self, event)
 		self:SetAlpha(0)
 	elseif event == "PLAYER_REGEN_ENABLED" then
 		self:EnableMouse(true)
-		self:SetAlpha(1)
 	end
 end)
